@@ -1,0 +1,6 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+            \PYG{n}{z} \PYG{o}{=} \PYG{l+m+mi}{0}
+            \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{n\PYGZus{}x}\PYG{p}{):}
+                \PYG{n}{z} \PYG{o}{+=} \PYG{n}{w}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{*} \PYG{n}{x}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}
+            \PYG{n}{z} \PYG{o}{+=} \PYG{n}{b}
+\end{Verbatim}

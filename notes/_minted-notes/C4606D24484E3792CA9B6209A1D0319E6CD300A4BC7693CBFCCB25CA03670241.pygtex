@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+            \PYG{n}{Z} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{dot}\PYG{p}{(}\PYG{n}{w}\PYG{o}{.}\PYG{n}{T}\PYG{p}{,}\PYG{n}{X}\PYG{p}{)} \PYG{o}{+} \PYG{n}{b}
+            \PYG{n}{A} \PYG{o}{=} \PYG{n}{sigmoid}
+\end{Verbatim}

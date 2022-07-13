@@ -1,0 +1,10 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+            \PYG{n}{Z} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{dot}\PYG{p}{(}\PYG{n}{w}\PYG{o}{.}\PYG{n}{T}\PYG{p}{,}\PYG{n}{X}\PYG{p}{)} \PYG{o}{+} \PYG{n}{b}
+            \PYG{n}{A} \PYG{o}{=} \PYG{n}{sigmoid}\PYG{p}{(}\PYG{n}{Z}\PYG{p}{)}
+            \PYG{n}{dz} \PYG{o}{=} \PYG{n}{A} \PYG{o}{\PYGZhy{}} \PYG{n}{Y}
+            \PYG{n}{dw} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{o}{/}\PYG{n}{m} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{dot}\PYG{p}{(}\PYG{n}{X}\PYG{p}{,} \PYG{n}{dz}\PYG{o}{.}\PYG{n}{T}\PYG{p}{)}
+            \PYG{n}{db} \PYG{o}{=} \PYG{l+m+mi}{1}\PYG{o}{/}\PYG{n}{m} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{dz}\PYG{p}{)}
+
+            \PYG{c+c1}{\PYGZsh{} Gradient descent update}
+            \PYG{n}{w} \PYG{o}{=} \PYG{n}{w} \PYG{o}{\PYGZhy{}} \PYG{n}{alpha} \PYG{o}{*}
+\end{Verbatim}

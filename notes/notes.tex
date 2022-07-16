@@ -627,6 +627,8 @@
         $$A^{[l]}=g^{[l]}(z^{[l]})$$
         \begin{itemize}
             \item Explicit for loop will be used to loop over the layers in the network
+            \item $b$ will still be a column vector but will apply correctly due to broadcasting
+            \item When working with $W$ and $A$ matrices, $A$ will be for the previous layer so the dimensions will fit
         \end{itemize}
         \item When debugging NN, can look at dimensions of all the matrices
         \item For a non vectorized implementation:
@@ -646,21 +648,52 @@
             \item Audio: low level waveforms $\rightarrow$ phonemes $\rightarrow$ words $\rightarrow$ sentences
         \end{itemize}
         \item Functions that can be computed with a ``small'' deep neural network require exponentially more hidden units in a shallower network
-    \item For each forward propagation step, the value of $z^{[l]}$ should be cached for backpropagation
+        \item For each forward propagation step, the value of $z^{[l]}$ should be cached for backpropagation
+        \begin{itemize}
+            \item Values of $w^{[l]}$ and $b^{[l]}$ can also be stored in the cache so they can be accessed for backpropagation
+        \end{itemize}
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=8cm]{12.png}
+        \end{figure}
+        \item All forward propagation steps will carried out until the hypothesis, $\hat{y}$ is found
+        \begin{itemize}
+            \item Using cached values, all backpropagation steps will be carried out until $dz^{[1]}$
+            \item Parameters $W^{[l]}$ and $b^{[l]}$ can be updated accordingly
+            $$W^{[l]}:=W^{[l]}-\alpha dw^{[l]}$$
+            $$b^{[l]}:=b^{[l]}-\alpha db^{[l]}$$
+        \end{itemize}
+        \item Backpropagation will also follow a pattern for all layers in the NN
+        \begin{itemize}
+            \item $dz^{[l]}=da^{[l]}*g^{[l]'}(z^{[l]})$
+            \item $dW^{[l]}=dz^{[l]}a^{[l-1]T}$
+            \item $db^{[l]}=dz^{[l]}$
+            \item $da^{[l-1]}=W^{[l]T}dz^{[l]}$
+        \end{itemize}
+        \item For a vectorized implementation:
+        \begin{itemize}
+            \item $dZ^{[l]}=dA^{[l]}*g^{[l]'}(Z^{[l]})$
+            \item $dW^{[l]}=\frac{1}{m}dZ^{[l]}A^{[l-1]T}$
+            \item $db^{[l]}=\frac{1}{m}\texttt{np.sum}(dZ^{[l]}\texttt{, axis=1, keepdims=True})$
+            \item $dA^{[l-1]}=W^{[l]T}dZ^{[l]}$
+        \end{itemize}
+    \end{itemize}
+    \subsubsection{Parameters vs Hyperparameters}
     \begin{itemize}
-        \item Values of $w^{[l]}$ and $b^{[l]}$ can also be stored in the cache so they can be accessed for backpropagation
+        \item Parameters of the NN are the $W$ and $b$ matrices
+        \item NN also has a number of associated hyperparameters:
+        \begin{itemize}
+            \item Learning rate $\alpha$
+            \item Number of iterations z`'
+            \item Number of layers in the network
+            \item Number of hidden units
+            \item Choice of activation function
+        \end{itemize}
+        \item Hyperparameters will control the values of $W$ and $b$
+        \item Deep learning has many more hyperparameters than earlier eras of machine learning
+        \begin{itemize}
+            \item Applying deep learning becomes an empirical process
+        \end{itemize}
+        \item Intuitions about hyperparameters may be different across different applications
     \end{itemize}
-    \begin{figure}[ht]
-        \centering
-        \includegraphics[width=8cm]{12.png}
-    \end{figure}
-    \item All forward propagation steps will carried out until the hypothesis, $\hat{y}$ is found
-    \begin{itemize}
-        \item Using cached values, all backpropagation steps will be carried out until $dz^{[1]}$
-        \item Parameters $W^{[l]}$ and $b^{[l]}$ can be updated accordingly
-        $$W^{[l]}:=W^{[l]}-\alpha dw^{[l]}$$
-        $$b^{[l]}:=b^{[l]}-\alpha db^{[l]}$$
-    \end{itemize}
-    \end{itemize}
-    \subsubsection{Gradient Descent Algorithm}
     \end{document}

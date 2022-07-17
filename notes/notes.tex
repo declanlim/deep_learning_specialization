@@ -696,4 +696,136 @@
         \end{itemize}
         \item Intuitions about hyperparameters may be different across different applications
     \end{itemize}
+    \pagebreak
+
+    \section{Improving Deep Neural Networks: Hyperparameter Tuning, Regularization and Optimization}
+    \subsection{Practical Aspects of Deep Learning}
+    \begin{itemize}
+        \item Applying ML is a highly iterative process
+        \begin{itemize}
+            \item Very hard to choose ``correct'' values for hyperparameters
+        \end{itemize}
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=8cm]{13.png}
+        \end{figure}
+        \item Deep learning used in many different areas
+        \begin{itemize}
+            \item NLP
+            \item Computer vision 
+            \item Speech analysis
+            \item Structured data
+            \begin{itemize}
+                \item Advertisement
+                \item Search engines
+                \item Computer security
+                \item Logistics 
+            \end{itemize}
+        \end{itemize}
+        \item Intuitions from one subject area often don't transfer to another application
+        \item Success of deep learning can depend on speed of iteration
+        \begin{itemize}
+            \item Choice of split of the data can influence speed of iteration
+        \end{itemize}
+        \item Whole dataset should be split into training, development and test set
+        \begin{itemize}
+            \item Dev set should be used rate performance of different models
+            \item Final model should be evaluated on the test set
+            \item Split will allow better evaluation of bias and variance of the model
+        \end{itemize}
+        \item Previous eras of ML had a 60/20/20 split between dataset
+        \item For the big data era, a smaller percentage of data is given to the dev and test sets
+        \begin{itemize}
+            \item For 1,000,000 examples, can allocate just 10,000 examples each to dev and test set
+            \item 10,000 examples is enough to run the algorithm and get a good idea about the algorithm performance
+        \end{itemize}
+        \item Recent trends also show mismatched training and test set distributions
+        \begin{itemize}
+            \item For images, training set may have very high quality images while test set may have lower quality
+            \item Dev and test set should come from the same distribution
+        \end{itemize}
+        \item Dataset might be split to not include a test set
+        \begin{itemize}
+            \item Dev set can be used to get to a ``good'' model
+            \item Since data is fit to the dev set, there is no unbiased estimate of performance
+            \item When data doesn't include a test set, dev set is usually referred to as ``test'' set 
+        \end{itemize}
+    \end{itemize}
+    \subsubsection{Bias and Variance}
+    \begin{itemize}
+        \item In the deep learning era, there tends to be less of a discussion about the bias/variance trade off
+        \item In 2 dimensions, data can be plotted to look for high bias or variance
+        \begin{itemize}
+            \item High bias classifiers underfit the data
+            \item High variance classifiers overfit the data
+        \end{itemize}
+        \item For higher dimensions, training set error and dev set error can be used
+        \begin{itemize}
+            \item High variance classifier has low training error and high dev set error
+            \item High bias classifier has high training error and high dev set error
+            \item Classifier with high bias and high variance will have high training error and even higher dev set error
+        \end{itemize}
+        \item Above ideas only work with the assumption that the optimal error is 0\%
+        \begin{itemize}
+            \item Training and dev set must also come from the same distribution
+        \end{itemize}
+    \end{itemize}
+    \subsubsection{Basic Recipe for Machine Learning}
+    \begin{itemize}
+        \item Train initial algorithm and reduce bias of algorithm to an ``acceptable value''
+        \begin{itemize}
+            \item Use a larger network 
+            \item Train algorithm for longer
+        \end{itemize}
+        \item Reduce variance of the algorithm by getting more data
+        \begin{itemize}
+            \item Add regularization terms to the cost function
+        \end{itemize}
+        \item Bias and variance can also be reduced by using a more appropriate NN architecture
+        \item In the big data era, bias and variance can be reduced without affecting each other
+        \begin{itemize}
+            \item Training a bigger network typically reduce the bias 
+            \item Getting more training data will typically reduce the variance
+        \end{itemize}
+        \item Using regularization will have a bias variance trade off
+    \end{itemize}
+    \subsubsection{Regularization}
+    \begin{itemize}
+        \item Adding regularization will usually help in reducing variance and prevent overfitting
+        \item For logistic regression:
+        $$J(w,b)=\frac{1}{m}\sum_{i=1}^m\mathcal{L}(\hat{y}^{(i)}, y^{(i)})+\frac{\lambda}{2m}||w||_2^2$$
+        \begin{align*}
+            ||w||_2^2&=\sum_{j=1}^{n_x}w_j^2 \\
+            &=w^Tw
+        \end{align*}
+        \begin{itemize}
+            \item Above method is $L_2$ regularization after the $L_2$ norm (Euclidean norm) of $w$
+            \item $b$ values can also be regularized but will have a much smaller effect than $w$ 
+        \end{itemize}
+        \item $L_1$ regularization adds the term:
+        $$\frac{\lambda}{m}\sum_{i=1}^{n_x}|w|=\frac{\lambda}{m}||w||_1$$
+        \begin{itemize}
+            \item Using $L_1$ regularization will result in $w$ being sparse
+            \item Can be seen to compressing the model
+        \end{itemize}
+        \item $L_2$ regularization is more common for deep learning 
+        \item Regularization parameter $\lambda$ will be set using the cross validation set
+        \begin{itemize}
+            \item \texttt{lambda} is a reserved keyword in Python 
+        \end{itemize}
+        \item For a neural network:
+        $$J(w^{[1]},b^{[1]},...,w^{[l]}, b^{[l]})=\frac{1}{m}\sum_{i=1}^m\mathcal{L}(\hat{y}^{(i)}, y^{(i)})+\frac{\lambda}{2m}\sum_{l=1}^L||W^{[l]}||^2$$
+        $$||W^{[L]}||^2=\sum^{n^{[l]}}_{i=1}\sum_{j=1}^{n^{[l-1]}} (w^{[l]}_{i,j})^2$$
+        \begin{itemize}
+            \item $||W^{[l]}||^2_F$ known as the Frobenius norm of the matrix
+        \end{itemize}
+        \item Since new term added to cost function, $\frac{\partial J}{\partial W^{[l]}}$ will be different
+        $$dW^{[l]}=...+\frac{\lambda}{m}W^{[l]}$$
+        $$W^{[l]}=W^{[l]}-\frac{\alpha\lambda}{m}W^{[l]}-\alpha(...)$$ 
+        \begin{itemize}
+            \item Also known as weight decay as value of $W$ will decrease on every iteration
+            $$W^{[l]}-\frac{\alpha\lambda}{m}W^{[l]}=\left(1-\frac{\alpha\lambda}{m}\right)w^{[l]}$$
+            \item Value of $\left(1-\frac{\alpha\lambda}{m}\right)$ will be slightly less than 1
+        \end{itemize}
+    \end{itemize}
     \end{document}

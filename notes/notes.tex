@@ -30,7 +30,7 @@
 \title{Deep Learning Specialization}
 \author{Declan Lim}
 
-\begin{document}>
+\begin{document}
     \maketitle
     \pagebreak
 
@@ -814,8 +814,8 @@
             \item \texttt{lambda} is a reserved keyword in Python 
         \end{itemize}
         \item For a neural network:
-        $$J(w^{[1]},b^{[1]},...,w^{[l]}, b^{[l]})=\frac{1}{m}\sum_{i=1}^m\mathcal{L}(\hat{y}^{(i)}, y^{(i)})+\frac{\lambda}{2m}\sum_{l=1}^L||W^{[l]}||^2$$
-        $$||W^{[L]}||^2=\sum^{n^{[l]}}_{i=1}\sum_{j=1}^{n^{[l-1]}} (w^{[l]}_{i,j})^2$$
+        $$J(w^{[1]},b^{[1]},...,w^{[l]}, b^{[l]})=\frac{1}{m}\sum_{i=1}^m\mathcal{L}(\hat{y}^{(i)}, y^{(i)})+\frac{\lambda}{2m}\sum_{l=1}^L||w^{[l]}||^2$$
+        $$||w^{[L]}||^2=\sum^{n^{[l]}}_{i=1}\sum_{j=1}^{n^{[l-1]}} (w^{[l]}_{i,j})^2$$
         \begin{itemize}
             \item $||W^{[l]}||^2_F$ known as the Frobenius norm of the matrix
         \end{itemize}
@@ -824,8 +824,53 @@
         $$W^{[l]}=W^{[l]}-\frac{\alpha\lambda}{m}W^{[l]}-\alpha(...)$$ 
         \begin{itemize}
             \item Also known as weight decay as value of $W$ will decrease on every iteration
-            $$W^{[l]}-\frac{\alpha\lambda}{m}W^{[l]}=\left(1-\frac{\alpha\lambda}{m}\right)w^{[l]}$$
+            $$W^{[l]}-\frac{\alpha\lambda}{m}W^{[l]}=\left(1-\frac{\alpha\lambda}{m}\right)W^{[l]}$$
             \item Value of $\left(1-\frac{\alpha\lambda}{m}\right)$ will be slightly less than 1
         \end{itemize}
+        \item Adding regularization term will penalize the weight matrix from being too large
+        \begin{itemize}
+            \item As the value of $\lambda$ is increased, the weights in $w$ will get closer to 0 
+            \item Each hidden unit will have a smaller effect and the resulting NN will be simpler
+        \end{itemize}
+        \item When using the tanh function, penalizing $w$ will make $z^{[l]}$ smaller
+        \begin{itemize}
+            \item For a small $z^{[l]}$, tanh function is roughly linear
+            \item If all hidden units in the network are roughly linear, the result of the NN will also be roughly linear
+        \end{itemize}
+    \end{itemize}
+
+    \vspace{5mm}
+    \textbf{Dropout Regularization}
+    \begin{itemize}
+        \item Each layer in the NN has a probability of eliminating a node
+        \begin{itemize}
+            \item When a node is eliminated, all outgoing links from the node are also deleted
+            \item Each example will be trained on a smaller network so will have less chance of overfitting 
+        \end{itemize}
+        \item For each different training example, the NN is reset and randomly eliminates nodes again
+        \item Inverted dropout:
+        \begin{minted}{Python}
+    d3 = np.random.rand(a3.shape[0], a3.shape[1]) < keep_prob
+    a3 = np.multiply(a3, d3)
+    a3 /= keep_prob
+        \end{minted}
+        \begin{itemize}
+            \item For \texttt{keep\_prob} = 0.8  each node has a 0.2 chance of being removed
+            \item Activation values should be scaled by \texttt{keep\_prob} so the expected value of $z$ can stay constant
+            \item On each pass through the training set, a different set of units should be zeroed out   
+        \end{itemize}
+        \item At test time, dropout should not be used as it will create noise in the predictions
+        \item A single hidden unit cannot rely on a specific feature as it may not be used on each iteration
+        \begin{itemize}
+            \item Weights for the unit will be spread out between the units
+            \item Has the same effect as shrinking the weights like L2 regularization
+            \item The equivalent L2 penalty on different weights depends on the size of the activations being used for the weight
+        \end{itemize}
+        \item \texttt{keep\_prob} can be varied between the layers
+        \begin{itemize}
+            \item Larger layers may be more prone to overfitting and can have a larger \texttt{keep\_prob}
+            \item For small layers with a very small chance of overfitting, \texttt{keep\_prob} can be set to 1
+        \end{itemize}
+        \item Dropout can also be applied to the input layer
     \end{itemize}
     \end{document}

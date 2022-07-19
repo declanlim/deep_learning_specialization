@@ -871,6 +871,125 @@
             \item Larger layers may be more prone to overfitting and can have a larger \texttt{keep\_prob}
             \item For small layers with a very small chance of overfitting, \texttt{keep\_prob} can be set to 1
         \end{itemize}
-        \item Dropout can also be applied to the input layer
+        \item Many dropout implementations started with computer vision
+        \begin{itemize}
+            \item Input size for computer vision is extremely large
+        \end{itemize}
+        \item Cost function is not well defined when dropout is used
+        \begin{itemize}
+            \item Can set \texttt{keep\_prob} to 1 and check for monotonically decreasing $J$
+            \item When $J$ is decreasing, then can reduce the value of \texttt{keep\_prob} to use dropout
+        \end{itemize}
+    \end{itemize}
+    
+    \vspace{5mm}
+    \textbf{Other Regularization Methods}
+    \begin{itemize}
+        \item Getting more training data will almost always help overfitting
+        \begin{itemize}
+            \item May not be possible to get more training data or very expensive
+        \end{itemize}
+        \item Data augmentation will create new examples and can help reduce overfitting
+        \item For an image dataset:
+        \begin{itemize}
+            \item Flipping the image horizontally
+            \item Randomly cropping and distorting the image
+        \end{itemize}
+        \item Magnitude of image transformation depends on classifier
+        \begin{itemize}
+            \item For a cat dataset, image should not be flipped vertically 
+            \item For OCR, distortions and rotations can be slightly more extreme
+        \end{itemize}
+        \vspace{5mm}
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=12cm]{14.png}
+            \includegraphics[width=12cm]{15.png}
+        \end{figure}
+        \item Early stopping can be used to prevent overfitting from happening
+        \begin{itemize}
+            \item If the NN is overfitting the data, the dev set error will initially decrease before increasing
+            \item Training of the NN can be stopped when the dev set error is lowest and the data has not been overfit
+        \end{itemize}
+        \item Using early stopping links the task of optimizing $J$ and not overfitting the data
+        \begin{itemize}
+            \item Early stopping will prevent the cost function from being optimized 
+        \end{itemize}
+        \item L2 regularization is a better method to prevent overfitting
+        \begin{itemize}
+            \item Requires a choice for the value of $\lambda$ and is much more computationally expensive
+        \end{itemize}
+    \end{itemize}
+    \subsubsection{Setting up the Optimization Problem}
+    \begin{itemize}
+        \item Normalization can be used to speed up the training of a NN
+        \begin{itemize}
+            \item Subtract the mean:
+            $$\mu=\frac{1}{m}\sum_{i=1}^mx^{(i)}$$
+            $$x:=x=\mu$$
+            \item Normalize the variance:
+            $$\sigma^2=\frac{1}{m}\sum_{i=1}^mx^{(i)}**2$$ 
+            $$x/=\sigma$$
+        \end{itemize}
+        \item When normalizing a training set, test set and training set should be processed together
+        \begin{itemize}
+            \item All the data must go through the same transformation
+        \end{itemize}
+        \item For data that is not normalized, the cost function will be very elongated
+        \begin{itemize}
+            \item The gradient will be quite shallow and will take longer to converge
+            \item Algorithm will require a smaller learning rate
+            \vspace{5mm}
+            \begin{figure}[ht]
+                \centering
+                \includegraphics[width=8cm]{18.png}
+            \end{figure}
+        \end{itemize}
+        \item On average, normalized data will have a cost function that is more symmetric
+        \begin{itemize}
+            \item Gradient descent will converge faster and can use a larger learning rate
+            \begin{figure}[ht]
+                \centering
+                \includegraphics[width=8cm]{19.png}
+            \end{figure}
+        \end{itemize}
+    \end{itemize}
+
+    \vspace{5mm}
+    \textbf{Vanishing/Exploding Gradients}
+    \begin{itemize}
+        \item For very deep neural networks, the derivatives can get exponentially big or small
+        \item If the weights of a NN are all the same, the prediction $\hat{y}$ will $x$ to the $L$th power
+        \begin{itemize}
+            \item For $W^{[l]}>I$ the gradient will explode
+            \item For $W^{[l]}<I$ the gradient will vanish
+        \end{itemize}
+        \item Some modern applications use 152 layer NN
+        \begin{itemize}
+            \item Require careful initialization of the weights to ensure correct training
+        \end{itemize}
+        \item For a single neuron:
+        \begin{itemize}
+            \item The output $\hat{y}$ will be the sum of all $w_ix_i$
+            $$z = w_1x_1+w_2x_2+...+w_nx_n$$
+            \item For a large $n$, want a smaller $w_i$
+            \item Want $\text{Var}(w_i)=\frac{1}{n}$
+        \end{itemize}
+        \begin{minted}[escapeinside=||]{Python}
+    |$W^{[l]}$| = np.random.randn(shape) * np.sqrt|$\left(\frac{1}{n^{[l-1]}}\right)$|
+        \end{minted}
+        \begin{itemize}
+            \item Variance of Gaussian random variable can be set by multiplying by sqrt tem
+        \end{itemize}
+        \item For ReLU activation function, the variance should be set to $\frac{2}{n}$
+        \begin{itemize}
+            \item tanh activation uses Xavier initialization $\frac{1}{n^{[l-1]}}$
+            \item Yoshua Bengio multiplied random variable by $\sqrt{\frac{2}{n^{[l-1]}+n^{[l]}}}$
+        \end{itemize}
+        \item Initialization of weights aims to set weight matrices close to 1
+        \begin{itemize}
+            \item Helps to prevent $\hat{y}$ from vanishing or exploding too quickly
+        \end{itemize}
+        \item Variance parameter can be tuned as another hyperparameter
     \end{itemize}
     \end{document}

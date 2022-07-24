@@ -749,6 +749,7 @@
             \item Dev set can be used to get to a ``good'' model
             \item Since data is fit to the dev set, there is no unbiased estimate of performance
             \item When data doesn't include a test set, dev set is usually referred to as ``test'' set 
+            \item Resulting model may overfit to the dev set
         \end{itemize}
     \end{itemize}
     \subsubsection{Bias and Variance}
@@ -792,6 +793,10 @@
     \subsubsection{Regularization}
     \begin{itemize}
         \item Adding regularization will usually help in reducing variance and prevent overfitting
+        \begin{itemize}
+            \item Regularization will only affect how the weights change during backpropagation
+            \item For forward propagation, regularization has no effect
+        \end{itemize}
         \item For logistic regression:
         $$J(w,b)=\frac{1}{m}\sum_{i=1}^m\mathcal{L}(\hat{y}^{(i)}, y^{(i)})+\frac{\lambda}{2m}||w||_2^2$$
         \begin{align*}
@@ -991,5 +996,51 @@
             \item Helps to prevent $\hat{y}$ from vanishing or exploding too quickly
         \end{itemize}
         \item Variance parameter can be tuned as another hyperparameter
+    \end{itemize}
+
+    \vspace{5mm}
+    \textbf{Gradient Checking}
+    \begin{itemize}
+        \item Can be used to ensure implementation of backpropagation is correct
+        \item Requires numerical approximations of gradients
+        \begin{itemize}
+            \item For a function $f$ at a point $\theta$, gradient can be approximated by looking at $\theta+\epsilon$ and $\theta-\epsilon$
+            \item Approximation is closer when double sided estimate is used
+        \end{itemize}
+        \item If $g$ is the derivative of $f$:
+        $$g(\theta)\approx\frac{f(\theta+\epsilon)-f(\theta-\epsilon)}{2\epsilon}$$
+        \item Using the 2 sided difference will give a much better estimate but is more computationally expensive
+        \item The derivative of a function at a point is the limit of the numerical approximation
+        $$f'(\theta)=\lim_{\epsilon\rightarrow 0}\frac{f(\theta+\epsilon)-f(\theta-\epsilon)}{2\epsilon}$$
+        \begin{itemize}
+            \item For a non 0 value of $\epsilon$, the error of the approximation is $O(\epsilon^2)$
+            \item For the single sided numerical approximation, the error is $O(\epsilon)$ 
+        \end{itemize}
+        \item To perform gradient checking on a NN:
+        \begin{enumerate}
+            \item Reshape $W^{[1]},b^{[1]},...,W^{[L]},b^{[L]}$ into a single vector $\theta$
+            \item Reshape $dW^{[1]},db^{[1]},...,W^{[L]},b^{[L]}$ into a single vector $d\theta$
+            \item For every $i$ in $\theta$, calculate:
+            $$d\theta_{approx}[i]=\frac{J(\theta_1,\theta_2,...,\theta_i+\epsilon)-J(\theta_1,\theta_2,...,\theta_i-\epsilon)}{2\epsilon}$$
+            \item Check if $d\theta_{approx}$ and $d\theta$ are reasonably close to each other
+            
+            For $\epsilon=10^{-7}$:
+            $$\frac{||d\theta_{approx}-d\theta||_2}{||d\theta_{approx}||_2+||d\theta||_2}\approx 10^{-7}$$
+        \end{enumerate}
+        \item Grad check should be only be used when debugging
+        \begin{itemize}
+            \item Calculating $d\theta_{approx}$ is very computationally expensive
+        \end{itemize}
+        \item If regularization is used, correct cost function must be used to calculate the gradient
+        \item If dropout is used, $J$ is not well defined and cannot use grad check
+        \begin{itemize}
+            \item Cost function $J$ that is optimized by dropout is defined by summing over all subsets of nodes that could be eliminated on each iteration
+            \item Can implement grad check with a \texttt{keep\_prob} of 1 before turning on dropout
+        \end{itemize}
+        \item Implementation of gradient descent may be correct when $W$ and $b$ are close to 0
+        \begin{itemize}
+            \item Can run grad check just after random initialization
+            \item After training the network for a number of iterations, can run grad check again
+        \end{itemize}
     \end{itemize}
     \end{document}

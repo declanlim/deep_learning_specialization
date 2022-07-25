@@ -1043,4 +1043,73 @@
             \item After training the network for a number of iterations, can run grad check again
         \end{itemize}
     \end{itemize}
+
+    \subsection{Optimization Algorithms}
+    \subsubsection{Mini Batch Gradient Descent}
+    \begin{itemize}
+        \item For gradient descent, vectorization will allow computation over all $m$ training examples
+        \begin{itemize}
+            \item If $m$ is very large, then vectorization will still be very slow
+        \end{itemize}
+        \item Gradient descent requires the whole training set to be processed for a single step of gradient descent
+        \item Data from training set can be split into mini batches
+        $$X^{\{1\}}=[x^{(1)},x^{(2)},...,x^{(1000)}]$$
+        $$Y^{\{1\}}=[y^{(1)},y^{(2)},...,y^{(1000)}]$$
+        \item Mini batch gradient descent looks at one mini batch on each iteration of gradient descent
+        \item For each mini batch in the training set:
+        \begin{itemize}
+            \item Run forward propagation on $X^{\{t\}}$
+            \begin{itemize}
+                \item[] $Z^{[1]}=W^{[1]}X^{\{t\}}+b^{[1]}$
+                \item[] $A^{[1]}=g^{[1]}(Z^{[1]})$
+                \item[] ...
+                \item[] $A^{[l]}=g^{[l]}(Z^{[l]})$
+            \end{itemize}
+            \item Compute cost: $J^{\{t\}}=\frac{1}{1000}\sum_{i=1}^l\mathcal{L}(\hat{y}^{(i)},y^{(i)})+\frac{\lambda}{2\times 1000}\sum_l||W^{[l]}||_F^2$
+            \item Use backpropagation to calculate gradients wrt $J^{\{t\}}$
+            \item Update weights
+            \begin{itemize}
+                \item[] $W^{[l]}:=W^{[l]}-\alpha dW^{[l]}$
+                \item[] $b^{[l]}:=b^{[l]}-\alpha db^{[l]}$
+            \end{itemize}
+        \end{itemize}
+        \item A single pass through the training set is known as an epoch
+        \item Algorithm can continue to run for multiple passes through the training set until an optimal solution is found
+        \item For batch gradient descent, the cost should decrease on each iteration
+        \begin{itemize}
+            \item If the cost doesn't decrease per iteration, then the algorithm has a bug
+        \end{itemize}
+        \item For mini batch gradient descent, the cost will trend downwards but will be more noisy
+        \begin{itemize}
+            \item Algorithm is being trained on a different batch of results on each iteration
+        \end{itemize}
+        \item When running mini batch gradient descent, must choose the size of the mini batch
+        \begin{itemize}
+            \item For mini batch size = $m$: Batch gradient descent
+            \item For mini batch size = 1: Stochastic gradient descent
+        \end{itemize}
+        \item For stochastic gradient descent, each example may be good or bad for gradient descent
+        \begin{itemize}
+            \item On average the cost function will be minimized for gradient descent
+            \item Path taken by gradient descent will be very noisy
+            \item Stochastic gradient descent will never converge and just oscillate around the minimum
+        \end{itemize}
+        \item Choice of mini batch size should be between 1 and $m$
+        \begin{itemize}
+            \item Batch gradient descent will take very long for a single iteration
+            \item Stochastic gradient descent will lose all the speed from vectorization
+        \end{itemize}
+        \item For a small training set ($m\leq 2000$), can just use gradient descent
+        \item Otherwise can try a mini batch size from 64-512
+        \begin{itemize}
+            \item Code may run faster if the mini batch size is a power of 2
+        \end{itemize}
+        \item A single mini batch should be able to fit in the whole CPU/GPU memory
+    \end{itemize}
+
+    \vspace{5mm}
+    \textbf{Advanced Optimization Algorithms}
+    \begin{itemize}
+        \item Some advanced algorithms require the use of exponentially weighted averages
+    \end{itemize}
     \end{document}

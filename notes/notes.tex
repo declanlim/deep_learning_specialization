@@ -1111,5 +1111,145 @@
     \textbf{Advanced Optimization Algorithms}
     \begin{itemize}
         \item Some advanced algorithms require the use of exponentially weighted averages
+        \item Moving averages can be calculated for data such as daily temperature
+        $$V_0=0$$
+        $$V_t=\beta V_{t-1}+(1-\beta)\theta_t$$
+        \begin{itemize}
+            \item $V_t$ is the approximated average temperature over the last $\frac{1}{1-\beta}$ days 
+            \item If $\beta$ is larger then the average will adapt slower to changes in the data
+        \end{itemize}
+        \item Exponentially weighted average can be found by summing the daily temperature with an exponentially decaying function 
+        \item If $\beta=0.9$:
+        $$V_{100}=0.1\theta_{100}+(0.1)(0.9)\theta_{99}+(0.1)(0.9)^2\theta_{98}+(0.1)(0.9)^3\theta_{97}+...$$ 
+        \item When calculating the exponentially weighted average, the same variable $v$ should be used and overwritten each time
+        \begin{itemize}
+            \item Implementation will be much more efficient than calculating average manually from the past 10 values 
+        \end{itemize}
+        \item For large values of $\beta$, initial average will be much lower than they should be 
+        $$\frac{V_t}{1-\beta^t}$$
+        \item Bias correction can be used to ensure initial values are correct estimations of the averages
+        \begin{itemize}
+            \item As $t$ becomes larger, denominator becomes closer to 1
+        \end{itemize}
+    \end{itemize}
+
+    \vspace{5mm}
+    \textbf{\textit{Momentum}}
+    \begin{itemize}
+        \item Gradient descent with momentum uses an exponentially weighted average of the gradients to update the weights
+        \begin{itemize}
+            \item Almost always performs better than standard gradient descent
+            \item[] $V_{dW}=\beta V_{dW}+(1-\beta)dW$
+            \item[] $V_{db}=\beta V_{db}+(1-\beta)db$
+            \item[] $W=W-\alpha V_{dw}$
+            \item[] $b=b-\alpha V_{db}$
+        \end{itemize}
+        
+        
+        
+        \item Taking the average of the gradients will slow down any unnecessary oscillations in the algorithm
+        \begin{itemize}
+            \item Algorithm may oscillate at first but will start to take more direct steps to the minimum
+        \end{itemize}
+        \item $\beta=0.9$ is a common choice for most applications of momentum
+    \end{itemize}
+
+    \vspace{5mm}
+    \textbf{\textit{RMSprop}}
+    \begin{itemize}
+        \item RMSprop takes the weighted average of the squares of the derivatives
+        \item Derivatives will get divided by the RMS before the weights are updated
+        \begin{itemize}
+            \item[] $S_{dW}=\beta_2S_{dW}+(1-\beta)dW^2$
+            \item[] $S_{db}=\beta_2S_{db}+(1-\beta)db^2$
+            \item[] $W=W-\alpha\frac{dW}{\sqrt{S_{dw}}}$
+            \item[] $b=b-\alpha\frac{db}{\sqrt{S_{db}}}$
+        \end{itemize}
+        \item Updates in the direction of oscillation will be divided by a large number
+        \begin{itemize}
+            \item Will allow the learning rate to be larger and therefore allows faster training
+        \end{itemize}
+        \item In practice, very small value $\epsilon$ is added to the denominator for more numerical stability
+    \end{itemize}
+
+    \vspace{5mm}
+    \textbf{\textit{Adam Optimization Algorithm}}
+    \begin{itemize}
+        \item Adam optimization shown to work well for a range of deep learning architectures
+        \begin{itemize}
+            \item Merges Momentum and RMSprop to one algorithm 
+            \item ``Adam'' stands for adaptive moment estimation
+        \end{itemize}
+        \item On iteration $t$:
+        \begin{itemize}
+            \item[] Compute $dW,db$ using the current mini batch
+            \item[] $V_{dw}=\beta_1V_{dw}+(1-\beta_1)dW,~~V_{db}=\beta_1V_{db}+(1-\beta_1)db$
+            \item[] $S_{dw}=\beta_2S_{dw}+(1-\beta_2)dW^2,~~S_{db}=\beta_2s{db}+(1-\beta_2)db^2$
+            \item[] $V_{dw}^{C}=\frac{V_{dw}}{1-\beta_1^t},~~V_{db}^{C}=\frac{V_{db}}{1-\beta_1^t}$
+            \item[] $S_{dw}^{C}=\frac{S_{dw}}{1-\beta_2 ^t},~~S_{db}^{C}=\frac{S_{db}}{1-\beta_2 ^t}$
+            \item[] $W:=W-\alpha\frac{V_{dw}^{C}}{\sqrt{S_{dw}^{C}}+\epsilon}$
+            \item[] $b:=b-\alpha\frac{V_{db}^C}{\sqrt{S_{db}^C}+\epsilon}$
+        \end{itemize}
+        \item Must choose many hyperparameters to run Adam optimization
+        \begin{itemize}
+            \item $\alpha$: needs to be tuned to the specific NN
+            \item $\beta_1$: 0.9 (default)
+            \item $\beta_2$: 0.999 (default)
+            \item $\epsilon: 10^{-8}$ (default) 
+        \end{itemize}
+    \end{itemize}
+
+    \vspace{5mm}
+    \textbf{Learning Rate Decay}
+    \begin{itemize}
+        \item For mini batch gradient descent, the algorithm will oscillate around the minimum point
+        \item If the learning rate is reduced over time, then the oscillations will become smaller 
+        \begin{itemize}
+            \item During the initial steps of learning, algorithm can afford to take large steps
+            \item As the algorithm starts to converge, smaller steps are preferred
+        \end{itemize}
+        $$\alpha=\frac{1}{1+\text{decay rate $\times$ epoch num}}\alpha_0$$
+        \item Other formulas can be used to decay the learning rate
+        \begin{itemize}
+            \item Exponential decay
+            $$\alpha=0.95^{\text{epoch num}}\alpha_0$$
+            \item Discrete staircase
+            \begin{figure}[ht]
+                \centering
+                \includegraphics[width=8cm]{20.png}
+            \end{figure}
+            \item Square root of epoch number
+            $$\alpha=\frac{k}{\sqrt{\text{epoch num}}}\alpha_0$$            
+        \end{itemize}
+        \item Manual decay can be used for larger models that take a longer time to train
+    \end{itemize}
+
+    \vspace{5mm}
+    \textbf{Local Optima}
+    \begin{itemize}
+        \item Initial ideas believed that a cost function with many points of 0 gradient would have many local optima
+        \begin{itemize}
+            \item When training a NN, most points with 0 gradient are saddle points
+        \end{itemize}
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=8cm]{21.png}
+        \end{figure}
+        \item For a point with 0 gradient, Each direction can either be a convex or concave function
+        \begin{itemize}
+            \item For a local optima, must have a convex function in all directions
+            \item In a high dimensional space, chance of all directions being convex functions is very small
+        \end{itemize}
+        \item Intuitions about lower dimensional spaces may not transfer to high dimensional spaces
+        \item Plateaus are areas where the gradient is near to 0 for a large area
+        \begin{figure}[ht]
+            \centering 
+            \includegraphics[width=12cm]{22.png}
+        \end{figure}
+        \begin{itemize}
+            \item Will take a very long time to move down off the plateau
+            \item Learning will be slow but unlikely to get stuck in a local optima
+        \end{itemize}
+        \item Optimization algorithms like Adam can help to speed up the training
     \end{itemize}
     \end{document}

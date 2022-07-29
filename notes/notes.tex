@@ -1252,4 +1252,125 @@
         \end{itemize}
         \item Optimization algorithms like Adam can help to speed up the training
     \end{itemize}
+
+    \subsection{Hyperparameter Tuning, Batch Normalization and Programming Frameworks}
+    \subsubsection{Hyperparameter Tuning}
+    \begin{itemize}
+        \item Deep neural networks have many hyperparameters associated with the actual network and the training implementation
+        \begin{itemize}
+            \item Numbers of layers and hidden units
+            \item Learning rate or method for learning rate decay
+            \item Hyperparameters for momentum or Adam optimization
+            \item Mini batch size 
+        \end{itemize}
+        \item Most important hyperparameter is the learning rate
+        \begin{itemize}
+            \item Secondary importance can be given to momentum ($\beta$), number of hidden units and the mini batch size
+            \item Number of layers and learning rate decay can be tuned last
+            \item Parameters for Adam optimization usually don't need to be tuned
+        \end{itemize}
+        \item In practice, random values for the hyperparameters should be sampled and tested
+        \begin{itemize}
+            \item If values are arranged in a grid, fewer distinct values can be tested
+            \item Choosing random values for the hyperparameters gives a higher chance of finding an optimum value for important hyperparameters
+        \end{itemize}
+        \item Can use coarse to fine sampling scheme to find optimum values
+        \begin{itemize}
+            \item Sample initial values and find which values work the best
+            \item ``Zoom in'' to the area and take more samples in the smaller region
+        \end{itemize}
+        \item For some hyperparameters (number of layers / hidden units), can sample over a reasonable range 
+        \item Some hyperparameters may not have an even distribution (Learning rate between 0.0001 and 1)
+        \begin{itemize}
+            \item Can use a log scale to ensure the numbers are better distributed 
+            \begin{minted}{Python}
+    r = -4 * np.random.rand
+    learning_rate = 10 ** r
+            \end{minted}
+            \item Can look for a range $10^a ... 10^b$ and take a random sample $r\in[a,b]$
+        \end{itemize}
+        \item For exponentially weighted averages, $\beta$ will be around 0.9-0.999
+        \begin{itemize}
+            \item Equivalent to averaging over the last 10 days or last 1000 days
+            \item Can sample values for $1-\beta$ for $r\in[-3,-1]$
+        \end{itemize}
+        \item For exponentially weighted averages, the sensitivity of the results is very high when $\beta$ is close to 1
+        \begin{itemize}
+            \item A change from 0.999 to 0.9995 will change the average from 1000 to 2000 examples
+        \end{itemize}  
+        \item Intuitions about the hyperparameters won't always transfer across applications
+        \begin{itemize}
+            \item Ideas found in one application can still be applied to other applications
+        \end{itemize} 
+        \item Hyperparameters can become stale over time with changing data or hardware
+        \begin{itemize}
+            \item Hyperparameters should be reevaluated every few months to ensure values are optimal
+        \end{itemize}
+        \item Depending on resources, can babysit a single model or train models in parallel 
+        \begin{itemize}
+            \item For a single model, hyperparameters can be tweaked over time depending on training performance
+            \item If resources allow, can train the same model with many different hyperparameters and choose the best model
+        \end{itemize}
+    \end{itemize}
+
+    \subsubsection{Batch Normalization}
+    \begin{itemize}
+        \item Inputs to a NN can be normalized to speed up learning
+        $$X=\frac{X-\mu}{\sigma}$$
+        \item Batch normalization normalizes the input values $Z^{[l]}$ to each layer
+        \begin{itemize}
+            \item Can instead normalize the values $A^{[l]}$ after the activation function 
+        \end{itemize}
+        \item Given intermediate values $z^{(1)},...,z^{(m)}$:
+        \begin{itemize}
+            \item[] $\mu=\frac{1}{m}\sum_iz^{(i)}$
+            \item[] $\sigma^2=\frac{1}{m}\sum_i(z^{(i)}-\mu)^2$
+            \item[] $z^{(i)}_{norm}=\frac{z^{(i)}-\mu}{\sqrt{\sigma^2+\epsilon}}$
+            \item[] $\tilde{z}^{(i)}=\gamma~z_{norm}^{(i)}+\beta$
+        \end{itemize}
+        \item $\gamma$ and $\beta$ are learnable parameters of the model
+        \begin{itemize}
+            \item Allows the mean and variance of $\tilde{z}$ to be set to any value
+            \item If $\gamma=\sqrt{\sigma^2+\epsilon}$, $\beta=\mu$, then $\tilde{z}^{(i)}=z^{(i)}$
+            \item May not want mean 0 and standard deviation 1 for the activation function
+        \end{itemize}
+        \item NN will have new parameters $\beta^{[1]},\gamma^{[1]},...,\beta^{[L]},\gamma^{[L]}$
+        \begin{itemize}
+            \item Will be updated like normal parameters
+            $$\beta^{[l]}=\beta^{[l]}-\alpha d\beta^{[l]}$$
+            $$\gamma^{[l]}=\gamma^{[l]}-\alpha d\gamma^{[l]}$$
+        \end{itemize}
+        \item Batch normalization is typically applied to mini batch gradient descent
+        \begin{itemize}
+            \item Mean and variance will be calculated from the mini batch being used 
+        \end{itemize}
+        \item When using batch normalization, normalization step removes the need for $b^{[l]}$ parameters
+        \begin{itemize}
+            \item When subtracting the mean from the $z$ values, the constant will get cancelled out
+            \item Mean of the $\tilde{Z}$ values will be decided by the $\beta^{[l]}$ parameters 
+        \end{itemize}
+        \item Batch normalization will make weights deeper in a network more robust to changes earlier in the network
+        \begin{itemize}
+            \item Data can have a covariate shift where the distribution changes after a generalization 
+            \item Function mapping from $X$ to $Y$ can be the same but model may need to be retrained 
+            \item Batch normalization will reduce the amount of movement of the distribution of the hidden values
+        \end{itemize}
+        \item Even if there is a covariate shift in the data, batch norm will make the $z$ values have the same mean and variance
+        \begin{itemize}
+            \item The individual layers in the network will be more independent of each other 
+        \end{itemize}
+        \item Batch norm will also add a slight regularization effect
+        \begin{itemize}
+            \item Each mini batch is scaled by the mean/variance of the specific mini batch
+            \item Normalizing with the mean/variance of the individual mini batch will add noise to the activations
+            \item Similar to dropout where the algorithm will not rely on any single hidden unit 
+            \item Noise added to the $z$ values is very small so dropout can be used as well 
+        \end{itemize}
+        \item If a larger mini batch size is used, noise is reduced and will have a smaller regularization effect
+        \item At test time, data will typically be processed one example at a time 
+        \begin{itemize}
+            \item Cannot calculated the mean/variance of a single example 
+            \item Mean/variance can be estimated using exponentially weighted averages across the mini batches
+        \end{itemize}
+    \end{itemize}
     \end{document}

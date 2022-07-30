@@ -1373,4 +1373,100 @@
             \item Mean/variance can be estimated using exponentially weighted averages across the mini batches
         \end{itemize}
     \end{itemize}
+    \subsubsection{Multi Class Classification}
+    \begin{itemize}
+        \item Logistic regression can be generalized to apply to multiple classes
+        $$C=\text{number of classes}$$
+        \item Output layer for the NN will have $C$ units
+        \begin{itemize}
+            \item Each unit will be the probability of each class
+            \item Sum of all numbers in the vector must be 1
+        \end{itemize}
+        \item Softmax layer used in the output layer to output vector of probabilities
+        \begin{itemize}
+            \item $Z^{[L]}$ values are calculated as normal: $Z^{[L]}=W^{[L]}a^{[L-1]}+b^{[L]}$
+            \item Use the softmax activation function
+            \begin{itemize}
+                \item[] $t=e^{(Z^{[L]})}$
+                \item[] $a^{[L]}=\frac{t}{\sum_{i=1}^Ct _i}$
+            \end{itemize}
+        \end{itemize}
+        \item Softmax activation function has a vector for its input and output
+        \begin{itemize}
+            \item Other activation functions had a single value for input and output
+        \end{itemize}
+        \item Largest input to softmax function will result in the largest output
+        \begin{itemize}
+            \item ``Hard max'' function would return 1 for the largest input and 0 for the other inputs
+        \end{itemize}
+        \item If $C=2$, softmax reduces to logistic regression
+        \item Softmax classifier cannot be trained as a normal NN
+        $$\mathcal{L}(\hat{y},y)=-\sum_{j=1}^Cy_j\log\hat{y}_j$$
+        \item Loss function will only be active for the ground truth class in the training set
+        $$J(W^{[1]}, b^{[1]},...)=\frac{1}{m}\sum_{i=1}^m\mathcal{L}(\hat{y}^{(i)},y^{(i)})$$
+        $$dz^{[L]}=\hat{y}-y$$
+    \end{itemize}
+    \subsubsection{Deep Learning Frameworks}
+    \begin{itemize}
+        \item For larger NNs, using a framework can save a lot of time 
+        \item Can look at the community behind the frameworks and the strengths
+        \begin{itemize}
+            \item Ease of programming (development and deployment)
+            \item Running speed
+            \item Truly open (open source with good governance)
+            \item Application of NN
+        \end{itemize}
+    \end{itemize}
+
+    \vspace{5mm}
+    \textbf{Tensorflow}
+    \begin{itemize}
+        \item Assume a simple cost function:
+        $$J(w)=w^2+10w+25$$
+    \end{itemize}
+    \begin{minted}{Python}
+        import numpy as np 
+        import tensorflow as tf
+
+        w = tf.Variable(0, dtype=tf.float32)
+        optimizer = tf.keras.optimizers.Adam(0.1)
+
+        def train_step():
+            with tf.GradientTape() as tape():
+                cost = w ** 2 - 10 * w + 25
+            trainable_variables = [w]
+            grads = tape.gradient(cost, trainable_variables)
+            optimizer.apply_gradients(zip(grads, trainable_variables))
+
+        for i in range(1000):
+            train_step() 
+    \end{minted}
+    \begin{itemize}
+        \item No need to compute backpropagation steps with tensorflow
+        \item More complex tensorflow program will have cost as a function of variables
+    \end{itemize}
+    \begin{minted}{Python}
+        w = tf.Variable(0, dtype=tf.float32)
+        x = np.array([1.0, -10.0, 25.0], dtype=np.float32)
+        optimizer = tf.keras.optmizers.Adam(0.1)
+
+
+        def training(x, w, optimizer):
+            def cost_fn():
+                return x[0] * w ** 2 + x[1] * w + x[2]
+
+            for i in range(1000):
+                optimizer.minimize(cost_fn, [w])
+
+            return w  
+    \end{minted}
+    \begin{itemize}
+        \item Tensorflow will create a computation graph from the defined cost function
+        \begin{itemize}
+            \item From the computation graph, tensorflow will compute the backpropagation steps
+        \end{itemize} 
+    \end{itemize}
+    \pagebreak
+    
+    \section{Structuring Machine Learning Projects}
     \end{document}

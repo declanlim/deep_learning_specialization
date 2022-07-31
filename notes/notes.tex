@@ -1469,4 +1469,66 @@
     \pagebreak
     
     \section{Structuring Machine Learning Projects}
+    \subsection{ML Strategy} 
+    \begin{itemize}
+        \item A machine learning project may have many ideas that can improve performance
+        \begin{itemize}
+            \item Collect more data
+            \item Use a more diverse training set
+            \item Train the algorithm over a longer period of time
+            \item Use a different optimization algorithm (Adam instead of gradient descent)
+            \item Use a bigger/smaller network
+            \item Add dropout or $L_2$ regularization
+            \item Change the network architecture (activation functions or hidden units)
+        \end{itemize}
+        \item Some methods may not be useful for the specific scenario
+        \item ML strategy is changing with deep learning
+        \begin{itemize}
+            \item Deep learning algorithms have different options when compared with previous generations
+        \end{itemize} 
+        \item Orthogonalization is where specific functions can be split up into different areas 
+        \item For a supervised learning system to perform well, system requires a chain of assumptions
+        \begin{itemize}
+            \item Performance of algorithm on the training set must pass some threshold ($\approx$ human-level performance)
+            \item Algorithm must be fit well to the dev set
+            \item Algorithm must be fit well to the test set
+            \item Algorithm must perform well in the real world
+        \end{itemize}
+        \item Each step has specific ``knobs'' to tune to improve performance in the specific area
+        \begin{itemize}
+            \item Training set: bigger network, Adam optimization
+            \item Dev set: regularization, bigger training set
+            \item Test set: bigger dev set 
+            \item Real world: change dev set or cost function
+        \end{itemize}
+        \item Early stopping is a method that is less orthogonalized
+        \begin{itemize}
+            \item Worsens the performance on the training set 
+            \item Improves the performance on the dev set
+        \end{itemize}
+        \item Single number evaluation metric can be used to test effectiveness of a model
+        \item F1 score combines precision and recall into a single metric
+        \begin{itemize}
+            \item Precision is the percentage of positively classified examples that are actually positive
+            \item Recall is the percentage of positive examples that are correctly classified
+            \item F1 score takes the harmonic mean of precision and recall
+        \end{itemize}
+        $$F_1=\frac{2}{\frac{1}{P}+\frac{1}{R}}$$
+        \item Having a well defined test set and single number evaluation metric will speed up iteration 
+        \item Scenario may have more than one type of metric that is relevant
+        \begin{itemize}
+            \item Classification algorithm may value accuracy as well as running time
+            \item May not make sense to use a numerical function of some metrics
+        \end{itemize}
+        \item Accuracy would be a optimizing metric and running time would be the satisficing metric
+        \begin{itemize}
+            \item Goal can be to maximize accuracy subject to running time $\leq$ 100ms
+        \end{itemize}
+        \item For $N$ different metrics:
+        \begin{itemize}
+            \item 1 should be optimizing
+            \item $N-1$ should be satisficing
+        \end{itemize}
+        
+    \end{itemize}
     \end{document}

@@ -1501,7 +1501,7 @@
             \item Test set: bigger dev set 
             \item Real world: change dev set or cost function
         \end{itemize}
-        \item Early stopping is a method that is less orthogonalized
+        \item Early stopping can be used but is less orthogonalized
         \begin{itemize}
             \item Worsens the performance on the training set 
             \item Improves the performance on the dev set
@@ -1529,6 +1529,46 @@
             \item 1 should be optimizing
             \item $N-1$ should be satisficing
         \end{itemize}
-        
+        \item Dev set and test set should come from the same distribution
+        \begin{itemize}
+            \item If different distributions are used, algorithm may perform on the dev set but not on the test set 
+            \item Dev set and test set must have the same target
+        \end{itemize}
+        \item Dev set should be used to evaluate the performance of different models
+        \begin{itemize}
+            \item Setting up a dev set and an evaluation metric allows teams to iterate quickly
+        \end{itemize}
+        \vspace{5mm}
+        \begin{center}
+            ``Choose a dev set and test set to reflect data you expect to get in the future and consider important to do well on''
+        \end{center}
+        \item Previous eras of machine learning had a 60\%, 20\%, 20\%
+        \item Modern eras of machine learning have much larger datasets
+        \begin{itemize}
+            \item For 1000000 examples, can assign 1\% each to dev and test set
+            \item Larger amount of data in the training set will help algorithm 
+        \end{itemize}
+        \vspace{5mm}
+        \begin{center}
+            ``Set your test set to be big enough to give high confidence in teh overall performance of your system''
+        \end{center}
+        \item Some applications may only use a train and dev set
+        \begin{itemize}
+            \item Specific scenario may not require high confidence in the overall performance of the algorithm 
+            \item Must be careful to not overfit the dev set too much
+        \end{itemize}
+        \item Evaluation metric may not give a full representation of the specific scenario
+        \begin{itemize}
+            \item Cat classifier with very low error may allow some pornographic images through the algorithm
+            \item Algorithm with slightly higher error but no pornographic images would be preferred
+        \end{itemize}
+        \item Evaluation metric should be changed if it doesn't correctly rank the algorithm's performance
+        \begin{itemize}
+            \item Standard error function treats all images equally 
+            \item Weight can be added to the error function to weight unwanted images higher
+            \item Requires labelling of unwanted images in dev and test set
+        \end{itemize}
+        \item Task of changing evaluation metric is separate from changing cost function to achieve good performance
+        \item Metric and/or dev/test set should be changed if performance on the application is not linked
     \end{itemize}
     \end{document}

@@ -1470,6 +1470,7 @@
     
     \section{Structuring Machine Learning Projects}
     \subsection{ML Strategy} 
+    \subsubsection{Setting up a ML Project}
     \begin{itemize}
         \item A machine learning project may have many ideas that can improve performance
         \begin{itemize}
@@ -1571,4 +1572,76 @@
         \item Task of changing evaluation metric is separate from changing cost function to achieve good performance
         \item Metric and/or dev/test set should be changed if performance on the application is not linked
     \end{itemize}
+    \subsubsection{Comparing to Human Level Performance}
+    \begin{itemize}
+        \item With advances in deep learning, ML algorithms have much better performance
+        \begin{itemize}
+            \item More feasible for algorithms to be competitive with human level performers
+        \end{itemize}
+        \item Workflow of designing and building a ML system is more efficient when trying to learn something that humans can do
+        \item For many ML projects, initial learning will be very fast as algorithm approaches human level performance
+        \begin{itemize}
+            \item Rate of learning decreases after algorithm surpasses human level performance
+            \item Algorithm will approach Bayes optimal error
+        \end{itemize} 
+        \item Bayes optimal error is the best theoretical function for mapping from $X$ to $Y$
+        \begin{itemize}
+            \item For many tasks, human level performance is not very far from Bayes optimal error
+            \item Once human level performance is surpassed, there may not be many areas to improve in
+        \end{itemize}
+        \item If algorithm has lower than human level performance:
+        \begin{itemize}
+            \item Get labelled data from humans
+            \item Gain insight from manual error analysis 
+            \item Better analysis of bias/variance
+        \end{itemize}
+        \item If human level performance is much lower than the training and dev set error, can focus on the bias of the algorithm  
+        \item If human level performance is close to the training error, can focus on the variance of the algorithm
+        \item Human level performance can be used as an estimate for Bayes error
+        \begin{itemize}
+            \item Difference between the Bayes error and training error is the avoidable bias
+            \item Difference between the training and dev set error can measure the variance
+        \end{itemize}
+        \item For specialized tasks, different parties may have different errors for human classification
+        \begin{itemize}
+            \item For medical image classification, a team of experienced doctors will have much lower error than an average human
+            \item Bayes error must be less than or equal to the lowest human error
+            \item Lowest human error can be used as estimate for Bayes error 
+        \end{itemize}
+        \item For publishing a paper or deploying a system, human error definition may be different
+        \item When algorithm is very close to human level performance, can be hard to see if bias or variance should be trained
+        \item With deep learning, algorithms in some areas can surpass human level performance
+        \begin{itemize}
+            \item Online advertising
+            \item Product recommendations
+            \item Logistics
+            \item Loan approvals 
+        \end{itemize}
+        \item Above areas are not natural perception problems and come from structured data
+        \begin{itemize}
+            \item Currently more challenging for computers to surpass humans in natural perception tasks
+        \end{itemize}
+        \item ML has also surpassed humans in some natural perception tasks
+        \begin{itemize}
+            \item Speech recognition
+            \item Some image recognition
+            \item Medical tasks
+        \end{itemize}
+        \item For supervised learning, must assume that the training set can be fit well (low avoidable bias)
+        \begin{itemize}
+            \item The training set performance must also generalize well to the dev/test set (low variance)
+        \end{itemize}
+        \item For high bias:
+        \begin{itemize}
+            \item Train a bigger model
+            \item Train for longer or use a better optimization algorithm (momentum, RMSprop, Adam)
+            \item Change the NN architecture or find better hyperparameters
+        \end{itemize}
+        \item For high variance:
+        \begin{itemize}
+            \item Use more data 
+            \item Use regularization ($L_2$, dropout, data augmentation)
+            \item Change the NN architecture or find better hyperparameters
+        \end{itemize}
+    \end{itemize} 
     \end{document}

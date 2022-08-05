@@ -1644,4 +1644,95 @@
             \item Change the NN architecture or find better hyperparameters
         \end{itemize}
     \end{itemize} 
+    \subsubsection{Error Analysis}
+    \begin{itemize}
+        \item Misclassified examples can be manually examined to look for any patterns
+        \begin{itemize}
+            \item Finding patterns can give an upper bound of any increase in performance 
+        \end{itemize}
+        \item Different ideas for error analysis can be evaluated in parallel with a table
+        \begin{itemize}
+            \item For each image, can fill in a checkbox for any patterns
+            \item Percentage of total for each pattern will give an idea of how to best improve performance
+        \end{itemize}
+        \item Manual analysis may show new patterns in the errors
+        \item Some errors may be incorrectly labelled examples in the dev/test set
+        \begin{itemize}
+            \item Deep learning algorithms are quite robust to random errors in the training set
+            \item Algorithms are fairly susceptible to systematic errors in the training set 
+        \end{itemize}
+        \item Incorrectly labelled examples can be recorded in the error analysis table
+        \begin{itemize}
+            \item Percentage of error caused by incorrect labels can be calculated to see if fixing labels is a worthwhile task
+        \end{itemize}
+        \item Any processes should be applied to the dev and test set at the same time to ensure they come from the same distribution
+        \begin{itemize}
+            \item Training set may end up coming from a different distribution than the dev/test set
+        \end{itemize}
+        \item Can also look at examples that the algorithm got right to see if got any errors
+        \item For a new ML system, priority should be to build initial system then iterate
+        \begin{itemize}
+            \item Set up a dev/test set and evaluation metric
+            \item Build initial system quickly
+            \item Use bias/variance and error analysis to prioritize next steps
+        \end{itemize}
+        \item Error analysis will give idea for next steps
+    \end{itemize}
+    \subsubsection{Mismatched Training and Dev/Test Sets}
+    \begin{itemize}
+        \item Deep learning algorithms perform best with a lot of training data
+        \begin{itemize}
+            \item Many teams are putting as much data as possible into training sets
+            \item Extra data added to the training set will give a different distribution to the training set data
+        \end{itemize}
+        \item Other sources of data may have more examples but can come from a slightly different distribution
+        \item Data can be pooled together and randomly split into training, dev and test set
+        \begin{itemize}
+            \item All data will come from the same distribution
+            \item Much of the dev set will come from the additional distribution of images rather than the original distribution
+            \item Algorithm will optimize to the wrong distribution of images
+        \end{itemize}
+        \item Training set can be set to include all images from the additional distribution
+        \begin{itemize}
+            \item Examples from the original distribution will be split between the dev and test set
+            \item Dev and test set will have the correct distribution of images
+            \item Training set will have a different distribution 
+        \end{itemize}
+        \item Estimate of bias and variance changes when training set has a different distribution to dev and test set
+        \begin{itemize}
+            \item Comparatively high dev set error might mean dev set has more challenging images than training set
+            \item Data from the dev set will be new to the algorithm and will have a different distribution to the training data
+        \end{itemize}
+        \item Portion of the training set can be set as the training-dev set
+        \begin{itemize}
+            \item Should not be used for training but will have the same distribution as the training set
+        \end{itemize}
+        \item For error analysis, can look at the training set, training-dev set and dev set
+        \begin{itemize}
+            \item Large difference between the training error and training-dev error indicates a variance problem
+            \item Large difference between the training-dev error and dev error indicates a data mismatch problem
+            \item Large difference between training error and human error indicates high bias problem
+            \item Difference between the dev error and test error indicates degree of overfitting to the dev set
+        \end{itemize}
+        \item For each distribution of data, can look at:
+        \begin{itemize}
+            \item Human level error
+            \item Error on examples trained on 
+            \item Error on examples not trained on
+        \end{itemize}
+        \item For data mismatch:
+        \begin{itemize}
+            \item Use manual data analysis to try understand the difference between training and dev sets
+            \item Can try to make the training set more similar to the dev set (collect more examples or use artificial data synthesis)
+        \end{itemize}
+        \item For some applications, algorithm may overfit during artificial data synthesis
+        \begin{itemize}
+            \item For speech recognition, same recording of noise may be added to many examples
+            \item As much as possible, should aim to get a large range of examples with data synthesis
+        \end{itemize}
+    \end{itemize}
+    \subsubsection{Learning From Multiple Tasks}
+    \begin{itemize}
+        \item 
+    \end{itemize}
     \end{document}

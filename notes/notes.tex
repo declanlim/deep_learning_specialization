@@ -1551,7 +1551,7 @@
         \end{itemize}
         \vspace{5mm}
         \begin{center}
-            ``Set your test set to be big enough to give high confidence in teh overall performance of your system''
+            ``Set your test set to be big enough to give high confidence in the overall performance of your system''
         \end{center}
         \item Some applications may only use a train and dev set
         \begin{itemize}
@@ -1733,6 +1733,103 @@
     \end{itemize}
     \subsubsection{Learning From Multiple Tasks}
     \begin{itemize}
-        \item 
+        \item For some applications, NN trained for one task can be applied to another task
+        \begin{itemize}
+            \item NN trained for cat recognition can be retrained for radiology diagnosis
+        \end{itemize}
+        \item After initial NN is trained, output layer should be deleted
+        \begin{itemize}
+            \item Weights for the output layer should be randomly initialized
+            \item Dataset can be switched to new application and NN retrained
+        \end{itemize}
+        \item If the new dataset is small, can just retrain the last layer of the NN
+        \begin{itemize}
+            \item If there is a lot of data, all layers in the NN can be retrained
+            \item Pre-training is the training of the NN for the original application
+        \end{itemize}
+        \item Learning basic feature of images from a large dataset can help performance of algorithm
+        \item Transfer learning works best when there is comparatively more data for the initial training
+        \begin{itemize}
+            \item Initial training will not be useful if there is more data in the fine-tuning dataset
+            \item Both tasks must have the same input type
+            \item Low level features should be helpful for learning B
+        \end{itemize}
+        \item For multi task learning, a single NN will try to learn multiple things at a time
+        \begin{itemize}
+            \item Each task will ideally help the other tasks
+        \end{itemize}
+        \item For self driving vehicles, many objects need to be identified from input data
+        \begin{itemize}
+            \item Pedestrians
+            \item Cars 
+            \item Different types of signs
+            \item Traffic lights
+        \end{itemize}
+        \item Output from NN will be a vector for each object
+        $$\frac{1}{m}\sum_{i=1}^m\sum_{j=1}^4\mathcal{L}(\hat{y}_j^{(i)}, y_j^{(i)})$$
+        \begin{itemize}
+            \item Output from NN can have all objects in the same image
+            \item Softmax regression had only one output label for each image
+        \end{itemize}
+        \item NN trained to minimize above cost function is using multi task learning
+        \begin{itemize}
+            \item Separate NN could have been trained for each object
+            \item Basic image features for all NN can be shared
+        \end{itemize}
+        \item Multi task learning can also be done if the dataset is incomplete
+        \begin{itemize}
+            \item Dataset may have missing values for some objects
+            \item When calculating the cost, missing values can be ignored in the sum
+        \end{itemize}
+        \item Multi task learning should have tasks that benefit from having shared lower level features
+        \begin{itemize}
+            \item Amount of data for each task tends to be similar
+            \item Must be able to train a big enough NN to do well on all tasks
+        \end{itemize}
+        \item Transfer learning tends to be more common than multi task learning
+        \begin{itemize}
+            \item Multi task learning more common in computer vision
+        \end{itemize}
+    \end{itemize}
+    \subsubsection{End to End Deep Learning}
+    \begin{itemize}
+        \item End to end deep learning takes multiple stages of processing and combines it into a single NN
+        \item For sound recognition:
+        \begin{itemize}
+            \item Individual features of the sound (MFCC)
+            \item Recognizing phonemes
+            \item Recognizing words
+            \item Final transcript
+        \end{itemize}
+        \item End to end deep learning requires a lot more data than the standard pipeline
+        \begin{itemize}
+            \item A medium sized dataset can use a mixture of end to end learning and the standard pipeline
+        \end{itemize}
+        \item For an identity detection algorithm using a camera, algorithm will first detect the person's face
+        \begin{itemize}
+            \item Algorithm will then crop the image to the face and use the image to identify the person
+            \item Algorithm will compare new image to all existing images of recognized people
+        \end{itemize}
+        \item For each individual step, there is a lot of data for each step
+        \begin{itemize}
+            \item Will be a lot harder to find data for both concurrent steps
+        \end{itemize}
+        \item End to end deep learning used for machine translation 
+        \item Estimating a child's age from an x-ray more suited to different tasks
+        \begin{itemize}
+            \item Much easier to identify bones from x-ray before estimating age
+            \item Possible to use end to end method with a lot of data
+        \end{itemize}
+        \item End to end deep learning requires less hand-designing of components
+        \begin{itemize}
+            \item Hand-designing components may be constricting the data
+        \end{itemize}
+        \item End to end deep learning requires a large amount of data
+        \begin{itemize}
+            \item Hand-designed components could be useful when there is comparatively little data
+        \end{itemize}
+        \begin{center}
+            ``Do you have sufficient data to learn a function of the complexity needed to map $x$ to $y$''
+        \end{center}
     \end{itemize}
     \end{document}

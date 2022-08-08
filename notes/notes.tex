@@ -1832,4 +1832,104 @@
             ``Do you have sufficient data to learn a function of the complexity needed to map $x$ to $y$''
         \end{center}
     \end{itemize}
+    \pagebreak
+
+    \section{Convolutional Neural Networks}
+    \subsection{Foundations of Convolutional Neural Networks}
+    \begin{itemize}
+        \item Computer vision has benefitted greatly from deep learning
+        \begin{itemize}
+            \item Many current applications of computer vision were not possible a few years ago
+            \item Some ideas in deep learning also transferable across disciplines
+        \end{itemize}
+        \item Computer vision can be split into many subareas:
+        \begin{itemize}
+            \item Image classification
+            \item Object detection
+            \item Neural style transfer
+        \end{itemize}
+        \item For computer vision applications, input from an image can be very large
+        \begin{itemize}
+            \item $64\times64$ color image has 12288 features
+            \item $1000\times1000$ color image (1 megapixel) has 3000000 features
+        \end{itemize}
+        \item For a $1000\times1000$ image with 100 hidden units in the first layer, $W^{[1]}$ will have 3 billion parameters
+        \begin{itemize}
+            \item Computational requirements will be very large
+            \item Also hard to get enough data to prevent the NN from overfitting
+        \end{itemize}
+        \item For an object detection problem, can start by detecting vertical and horizontal edges in the image
+        \begin{itemize}
+            \item Using a grayscale image, a filter can be convolved with the image 
+            \item Each pixel in the filter takes an element wise product and sum over the whole filter
+        \end{itemize}
+        \item $6\times6$ grayscale image convolved with a $3\times3$  gives a $4\times4$ image
+        $$\begin{bmatrix}
+            1 & 0 & -1 \\
+            1 & 0 & -1 \\
+            1 & 0 & -1
+        \end{bmatrix}$$
+        \begin{itemize}
+            \item Above filter used for vertical edge detection 
+            \item Filter represents area in image that has a light section on the left section and dark on the right section
+            \item Filter will have better performance on larger images
+        \end{itemize}
+        $$\begin{bmatrix}
+            1 & 1 & 1 \\
+            0 & 0 & 0 \\
+            -1 & -1 & -1
+        \end{bmatrix}$$
+        \begin{itemize}
+            \item Above filter used for horizontal edge detection
+        \end{itemize}
+        \item Using the same filter, dark to light and light to dark edges will look different
+        \begin{itemize}
+            \item Absolute value can be taken if type of edge detected is not needed
+        \end{itemize}
+        \item Different numbers may be used for the edge detection filter
+        \begin{itemize}
+            \item Sobel filter
+            $$\begin{bmatrix}
+                1 & 0 & -1 \\
+                2 & 0 & -2 \\
+                1 & 0 & -1
+            \end{bmatrix}$$
+            \item Scharr filter
+            $$\begin{bmatrix}
+                3 & 0 & -3 \\
+                10 & 0 & -10 \\
+                3 & 0 & -3
+            \end{bmatrix}$$ 
+        \end{itemize}
+        \item Numbers in the filter can be learned with backpropagation 
+        \begin{itemize}
+            \item Can define what type of edge the filter should learn
+        \end{itemize}
+    \end{itemize}
+    \subsubsection{Padding and Strides}
+    \begin{itemize}
+        \item For a $n\times n$ image with a $f\times f$ filter, dimensions of the result will be $n-f+1$
+        \begin{itemize}
+            \item Dimensions of the image will shrink with every convolution
+            \item With the standard convolution operation, corner pixel is only used once
+            \item Pixels in the center of the image will get used many more times 
+        \end{itemize}
+        \item Image can be padded with a $1\times 1$ border
+        \begin{itemize}
+            \item Original image size will be preserved with convolution operation
+            \item 0s are typically used for padding
+        \end{itemize}
+        \item Dimensions of the new image will be $n+2p-f+1$
+        \item Valid convolution has no padding on the input
+        \item Same convolution uses padding such that the output is the same size as the input
+        \begin{itemize}
+            \item For same convolution, need $p=\frac{f-1}{2}$
+        \end{itemize}
+        \item Size of filter is usually an odd number
+        \begin{itemize}
+            \item For an even number, asymmetrical padding is needed for same convolution
+            \item Odd filter will always have a central pixel to the filter
+        \end{itemize}
+    \end{itemize}
+    
     \end{document}

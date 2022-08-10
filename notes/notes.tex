@@ -1928,7 +1928,106 @@
         \item Size of filter is usually an odd number
         \begin{itemize}
             \item For an even number, asymmetrical padding is needed for same convolution
-            \item Odd filter will always have a central pixel to the filter
+            \item Odd filter will always have a central pixel to the filter 
+        \end{itemize}
+        \item Strided convolutions change the size of the step taken by the filter
+        \begin{itemize}
+            \item Standard convolution uses a stride of 1
+        \end{itemize}
+        \item For an $n\times n$ image with an $f\times f$ filter, size of resultant image is:
+        $$\left\lfloor\frac{n+2p-f}{s}+1\right\rfloor$$
+        \item For a non standard stride length, the filter must be completely within the image for the computation
+        \item Convolution in mathematical literature flips the filter across the horizontal and diagonal before operation
+        $$\begin{bmatrix}
+            3 & 4 & 5 \\
+            1 & 0 & 2 \\
+            -1 & 9 & 7
+        \end{bmatrix}\rightarrow\begin{bmatrix}
+            7 & 9 & -1 \\
+            2 & 0 & 1 \\
+            5 & 4 & 3
+        \end{bmatrix}$$
+        \begin{itemize}
+            \item Convolution operation in deep learning literature known as cross-correlation
+            \item Flipping the filter in convolution gives associativity to the operation
+            $$(A*B)*C=A*(B*C)$$ 
+            \item Associativity not required for NN so flipping of filter can be omitted
+        \end{itemize}
+        \item For a 3 channel RGB image, filter will also have 3 channels
+        \begin{itemize}
+            \item Output from the RGB convolution will be a single image
+        \end{itemize}
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=15cm]{23.png}
+        \end{figure}
+        \item For RGB image, convolutions in each layer are applied then summed together for each pixel
+        \begin{itemize}
+            \item Filter can be set to detect edges in specific colors or all edges
+        \end{itemize}
+        \item To detect all edges, vertical filter and horizontal filter can be used
+        \begin{itemize}
+            \item Outputs from both filters can be stacked over each other
+        \end{itemize}
+        \item Single layer in a convolutional NN will add a bias term and non-linearity to each output
+        \begin{itemize}
+            \item Same bias term will be added to all pixels in the image
+        \end{itemize}
+        \item If using 10 $3\times 3\times 3$ filters, total parameters will be 280
+        \begin{itemize}
+            \item Number of parameters is independent of the size of the input
+            \item Makes CNN less prone to overfitting than standard NN
+        \end{itemize} 
+        \item For a convolution layer $l$:
+        \begin{itemize}
+            \item $f^{[l]}$ = filter size
+            \item $p^{[l]}$ = padding
+            \item $s^{[l]}$ = stride
+            \item Input: $n_H^{[l-1]} \times n_W^{[l-1]} \times n_C^{[l-1]}$
+            \item Output: $n_H^{[l]} \times n_W^{[l]} \times n_C^{[l]}$
+            $$n_H^{[l]}=\left\lfloor\frac{n_H^{[l-1]}+2p^{[l]}-f^{[l]}}{s^{[l]}}+1\right\rfloor$$
+            \item Filter: $f^{[l]} \times f^{[l]} \times n_C^{[l-1]}$
+            \item Activations:  $a^{[l]} \rightarrow n_H^{[l]} \times n_W^{[l]} \times n_C^{[l]}$ 
+            \begin{itemize}
+                \item[] $A^{[l]} \rightarrow m \times n_H^{[l]} \times n_W^{[l]} \times n_C^{[l]}$
+            \end{itemize}
+            \item Weights: $f^{[l]} \times f^{[l]} \times n_C^{[l-1]} \times n_C^{[l]}$
+            \item Bias: $n_C^{[l]}$
+        \end{itemize}
+        \item Each layer in a CNN can have different sizes for padding, filters and stride length
+        \begin{itemize}
+            \item A lot of the work for CNNs is choosing the hyperparameters for each layer in the network
+        \end{itemize}
+        \item Final output from the CNN can be unrolled and fed to a logistic regression unit to make a prediction
+        
+        \item In a CNN, will have convolution layers, pooling layers and fully connected layers
+        \item Pooling layers reduce the size of the representation and can make detected features more robust
+        \begin{itemize}
+            \item Max pooling splits the input into sections and takes the maximum value from each section
+            \item Max pooling will have a filter size and stride length
+            \item Max pooling will ``preserve'' any standout features 
+        \end{itemize}
+        \item For a 3D input to max pooling, output will have the same 3rd dimension
+        \begin{itemize}
+            \item Computation will be applied to each channel separately 
+        \end{itemize}
+        \item Average pooling takes the average from each filter
+        \begin{itemize}
+            \item Not as commonly used as max pooling
+        \end{itemize}
+        \item Padding size of 0 usually used for pooling layers
+        \item A fully connected layer is the same as a layer in a standard neural network 
+        \begin{itemize}
+            \item FC layer will have $W$ and $b$ parameters
+            \item Will reduce the dimension of the output of the NN
+        \end{itemize}
+        \item Further in the CNN, the height and width of the input will gradually decrease
+        \begin{itemize}
+            \item As $n_W$ and $n_H$ decrease, the depth of the input will typically increase
+        \end{itemize}
+        \item Typical CNN will have one or more conv layers followed by a pool layer
+        \begin{itemize}
+            \item CNN will usually finish with some fully connected layers then a softmax layer
         \end{itemize}
     \end{itemize}
     

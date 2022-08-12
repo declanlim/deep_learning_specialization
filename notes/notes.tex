@@ -2029,6 +2029,21 @@
         \begin{itemize}
             \item CNN will usually finish with some fully connected layers then a softmax layer
         \end{itemize}
+        \item Conv layers help the network with sparsity of connections
+        \begin{itemize}
+            \item Using a $32\times 32\times 3$ input image, 6 filters ($f=5$) will give around 14m parameters 
+            \item Conv layer will have 456 parameters for same calculation
+            \item In every layer, each output value is depends on only a small number of inputs
+        \end{itemize}
+        \item Conv layers use parameter sharing
+        \begin{itemize}
+            \item A feature detector (filter) that is useful in one part of an image will likely be useful in another part of the image
+        \end{itemize}
+        \item Conv layers and FC layers all have associated parameters
+        \begin{itemize}
+            \item Cost function can be defined over the parameters
+            \item Gradient descent or other optimization algorithm can be used to train the network and reduce J
+        \end{itemize}
     \end{itemize}
     
     \end{document}

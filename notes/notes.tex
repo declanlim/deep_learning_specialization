@@ -2045,5 +2045,119 @@
             \item Gradient descent or other optimization algorithm can be used to train the network and reduce J
         \end{itemize}
     \end{itemize}
-    
+    \subsection{Deep Convolutional Models: Case Studies}
+    \begin{itemize}
+        \item Intuition about own deep learning problem can be gained by looking at existing research
+        \begin{itemize}
+            \item NN architecture and other ideas may be transferrable to other problems
+            \item Ideas may also be transferrable to other areas of machine learning
+        \end{itemize}
+    \end{itemize}
+    \subsubsection{LeNet-5}
+    \begin{itemize}
+        \item Goal of LeNet-5 was to recognize handwritten digits
+        \item NN was trained on grayscale images ($32\times 32 \times 1$)
+    \end{itemize}
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[width=16cm]{24.png}
+    \end{figure}
+    \begin{itemize}
+        \item Output from the NN had 10 possible values 
+        \begin{itemize}
+            \item Modern implementation would use a softmax layer
+        \end{itemize}
+        \item When the NN was implemented, no padding was used 
+        \item LeNet-5 was ``small'' compared to other networks
+        \begin{itemize}
+            \item Whole NN had 60K parameters
+            \item Modern NN can have 10m to 100m parameters
+        \end{itemize}
+        \item Deeper in the network, $n_H$ and $n_W$ decrease and $n_C$ increase
+        \item Network starts with conv and pool layers, followed by FC layers then output 
+        \item Modern computers have the capacity for each filter to have the same number of channels as its input
+        \begin{itemize}
+            \item LeNet-5 had a method of making different filters looking at different inputs
+        \end{itemize}
+        \item LeNet-5 used sigmoid or tanh activation functions
+        \begin{itemize}
+            \item Non linearity was also added after the pooling layers
+        \end{itemize}
+    \end{itemize}
+
+    \subsubsection{AlexNet}
+    \begin{itemize}
+        \item Input was a $227\times 227$ color image
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=16cm]{25.png}
+        \end{figure}
+        \item Similar structure to LeNet-5 but much larger
+        \begin{itemize}
+            \item Contains around 60m parameters
+        \end{itemize}
+        \item Used ReLU activation functions 
+        \item Training of AlexNet was split across multiple GPUs
+        \item AlexNet used a Local Response Normalization layer
+        \begin{itemize}
+            \item After some layers, the outputs would be normalized across all the channels
+            \item Not used very often as research showed layer is not very helpful 
+        \end{itemize}
+    \end{itemize}
+
+    \subsubsection{VGG-16}
+    \begin{itemize}
+        \item Uses a much simpler network compared to AlexNet
+        \begin{itemize}
+            \item Conv layers: $3\times 3$ filter, $s=1$, same padding
+            \item Max pool layers: $2\times 2$ filter, $s=2$
+        \end{itemize}
+        \item NN has 16 layers with weights
+        \begin{itemize}
+            \item NN has around 138m weights
+        \end{itemize}
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=16cm]{26.png}
+        \end{figure}
+        \item NN is much more uniform when compared with other architectures
+    \end{itemize}
+
+    \subsubsection{ResNets}
+    \begin{itemize}
+        \item Very deep networks are hard to train due to vanishing and exploding gradients
+        \item Skip connections use activations from one layer in another layer deeper in the NN
+        \item ResNets created by using a residual block
+        \begin{itemize}
+            \item In between $a^{[l]}$ and $a^{[l+2]}$, the activations $a^{[l]}$ will go through two sets of linear and non linear functions
+            \item $a^{[l]}$ can be added later in the network before the second non-linearity
+        \end{itemize}
+        $$a{[2]}=g(z^{[l+2]}+a^{[l]})$$
+        \item  Residual blocks can be stacked together to form a deep network
+        \begin{itemize}
+            \item Residual blocks allow deeper NN to be trained
+        \end{itemize}
+        \item For ``plain'' NN, increasing the number of layers will initially decrease the training error
+        \begin{itemize}
+            \item When the number of layers is very large, the NN is hard to train and the training error increases
+            \item With ResNets, the training error shouldn't increase with the number of layers
+        \end{itemize}
+        \item Residual blocks can quite easily learn the identity function
+        \begin{itemize}
+            \item Using the ReLU activation, $a^{[l+2]}=g(W^{[l+2]}a^{[l+1]}+b^{[l+2]}+a^{[l]})$
+            \item With regularization, $W$ and $b$ will be close to 0
+            \item $\therefore a^{[l+2]}\approx g(a^{[l]})$
+            \item Since ReLU activation is used, $a^{[l+2]}\approx a^{[l]}$
+        \end{itemize}
+        \item If adding residual blocks is similar to using the identity function, the performance of the network will not be affected
+        \begin{itemize}
+            \item Residual blocks can also learn parameters that are better than the identity function
+        \end{itemize}
+        \item For ResNets, it is assumed that $z^{[l+2]}$ and $a^{[l]}$ have the same dimensions
+        \begin{itemize}
+            \item Same convolutions tend to be used for ResNets
+            \item If same convolution is not used, $a^{[l]}$ is multiplied by a matrix $W_s$ to create the correct dimension
+            \item $W_s$ can have parameters that can be learnt or can be a fixed matrix that adds zero padding
+        \end{itemize}
+    \end{itemize}
     \end{document}

@@ -2160,4 +2160,109 @@
             \item $W_s$ can have parameters that can be learnt or can be a fixed matrix that adds zero padding
         \end{itemize}
     \end{itemize}
+
+    \subsubsection{Networks in Networks}
+    \begin{itemize}
+        \item For a single $1\times 1\times 1$ filter, pixels in the image will get multiplied by the filter value
+        \begin{itemize}
+            \item If the filter has a depth of more than 1, the filter will take the element wise product of all numbers in the slice 
+            \item Very similar to a neuron taking all the numbers in a slice as input
+        \end{itemize}
+        \item Having a $1\times 1$ convolution on an input is the same as having a fully connected NN in each position
+        \item Using $1\times 1$ convolutions known as network in network
+        \item $1\times 1$ convolutions can be used to shrink the depth of an input
+        \begin{itemize}
+            \item Pooling layers used to shrink the height and width of the volume
+        \end{itemize}
+    \end{itemize}
+
+    \subsubsection{Inception Network}
+    \begin{itemize}
+        \item For CNNs, must choose the size of the filters and order of layers
+        \begin{itemize}
+            \item Inception network works with multiple choices of filters and layers at the same time
+        \end{itemize}
+        \item Outputs from all possible choices are stacked on top of each other
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=12cm]{27.png}
+        \end{figure} 
+        \begin{itemize}
+            \item Same padding used for conv layers so outputs have the same dimension
+            \item Same padding and $s=1$ must also be used for max pooling layer
+            \item Output from the layer will be a $28\times 28\times 256$ volume
+        \end{itemize}
+        \item For the $5\times 5$ filter section of the layer, 120,422,400 calculations are needed
+        \begin{itemize}
+            \item Single layer of an inception network can be very computationally expensive
+            \item $1\times 1$ convolutions can be used to reduce the computational cost by a factor of 10
+        \end{itemize}
+        \item $1\times 1$ convolutions can be used in a bottleneck layer to shrink the input
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=10cm]{28.png}
+        \end{figure}
+        \begin{itemize}
+            \item With the bottleneck layer, only 12,443,648 calculations are needed
+        \end{itemize}
+        \item For an inception module, $1\times 1$ convolution should be used before any filters that have larger dimensions
+        \begin{itemize}
+            \item For pooling layers, $1\times 1$ convolutions should be used to shrink the number of channels
+        \end{itemize}
+        \item Inception network created from multiple inception modules
+    \end{itemize}
+
+    \subsubsection{MobileNet}
+    \begin{itemize}
+        \item MobileNet networks can be built and deployed in low compute environments 
+        \begin{itemize}
+            \item Can be used for mobile and embedded vision applications due to low computational cost at deployment
+        \end{itemize}
+        \item For a normal convolution:
+        $$\text{Computational cost = \# filter params $\times$ \# filter positions $\times$ \# of filters}$$
+        \item A depthwise separable convolution separates process into depthwise and pointwise convolution
+        \item Depthwise convolution uses $n_C$ filters of $f\times f$
+        \begin{itemize}
+            \item Separate filter used for each channel
+            \item Output of depthwise convolution will be $n_{out}\times n_{out}\times n_C$
+        \end{itemize}
+        \item Pointwise convolution uses filters of size $1\times 1\times n_C$
+        \begin{itemize}
+            \item ${n_C}'$ filters used to get the correct dimensions in the output volume
+        \end{itemize}
+        \item Computational cost of depthwise and pointwise convolutions will be less than the computational cost for a normal convolution
+        \begin{itemize}
+            \item In general, the ratio of of computational costs is $\frac{1}{{n_C}'}+\frac{1}{f^2}$
+        \end{itemize}
+        \item MobileNet will use a depthwise separable convolution for all convolutions in the network
+        \begin{itemize}
+            \item Original MobileNet V1 network had 13 depthwise separable convolutions
+            \item Last layers of the network were pooling, FC and softmax layers 
+        \end{itemize}
+        \item MobileNet V2 used residual connections across each layer
+        \begin{itemize}
+            \item Convolution also added an expansion layer before the depthwise convolution 
+            \item MobileNet V2 had 17 convolution (bottleneck) blocks with pooling, FC and softmax layers
+        \end{itemize}
+        \item Expansion layer similar to the pointwise convolution (projection) but increases the depth of the volume
+        \begin{itemize}
+            \item The expansion increases the size of the representation to allow the NN to learn a richer function
+            \item The projection reduces the depth of the volume to reduce the amount of memory required for the output
+        \end{itemize}
+    \end{itemize}
+
+    \subsubsection{EfficientNet}
+    \begin{itemize}
+        \item Specific application can benefit from being scaled to the hardware specifications
+        \item To scale a NN:
+        \begin{itemize}
+            \item Higher resolution image
+            \item Change the depth of the network
+            \item Change the width of the layers
+        \end{itemize}
+        \item $r,d,w$ can be scaled according to available resources
+        \begin{itemize}
+            \item Rate of scaling for each variable may not be the same
+        \end{itemize}
+    \end{itemize}
     \end{document}

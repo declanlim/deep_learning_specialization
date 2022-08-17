@@ -2132,7 +2132,7 @@
             \item In between $a^{[l]}$ and $a^{[l+2]}$, the activations $a^{[l]}$ will go through two sets of linear and non linear functions
             \item $a^{[l]}$ can be added later in the network before the second non-linearity
         \end{itemize}
-        $$a{[2]}=g(z^{[l+2]}+a^{[l]})$$
+        $$a^{[l+2]}=g(z^{[l+2]}+a^{[l]})$$
         \item  Residual blocks can be stacked together to form a deep network
         \begin{itemize}
             \item Residual blocks allow deeper NN to be trained
@@ -2259,10 +2259,85 @@
             \item Higher resolution image
             \item Change the depth of the network
             \item Change the width of the layers
-        \end{itemize}
+        \end{itemize} 
         \item $r,d,w$ can be scaled according to available resources
         \begin{itemize}
             \item Rate of scaling for each variable may not be the same
+        \end{itemize}
+    \end{itemize}
+
+    \subsubsection{Practical Advice for CNNs}
+    \begin{itemize}
+        \item A lot of details about CNNs are hard to replicate in practice
+        \begin{itemize}
+            \item Open source implementation of code can often be found online 
+            \item Reimplementing the whole algorithm from scratch can help in terms of understanding
+        \end{itemize}
+        \item Specific architecture may also take a very long time to train on own device 
+        \begin{itemize}
+            \item Transfer learning can be used from pre trained networks
+        \end{itemize}
+        \item When using a pre trained network, softmax layer can be replaced to suit new application
+        \begin{itemize}
+            \item Parameters in the rest of the network can be ignored and softmax output layer can be trained
+            \item If only the last layer is being trained, the activations input to the softmax layer can be saved separately to prevent extra computation
+        \end{itemize}
+        \item If the training set is very big, more layers from the end of the network can be trained
+        \begin{itemize}
+            \item Weights from original network can be used for initialization
+            \item Layers can also be completely removed and trained again from the start
+            \item Whole network can be retrained if there is enough data
+        \end{itemize}
+        \item Most computer vision tasks can benefit from data augmentation
+        \item Mirroring and random cropping are commonly used for data augmentation
+        \begin{itemize}
+            \item Mirroring images works well for most applications
+            \item Random cropping works well as long as the crop is a reasonable subset of the image 
+        \end{itemize}
+        \item Other methods can be used but can be less effective
+        \begin{itemize}
+            \item Rotation
+            \item Shearing
+            \item Local warping
+        \end{itemize}
+        \item Color shifting can be used in almost all computer vision applications
+        \begin{itemize}
+            \item Can help to eliminate any biases caused by specific lighting
+            \item In practice, color shifting will be more structured (PCA color augmentation)
+        \end{itemize}
+        \item When training, a specific CPU thread will be used to apply distortions
+        \begin{itemize}
+            \item The data will be processed by the thread then passed to the CPU/GPU for training
+            \item CPU thread for distortion and CPU for training can run in parallel
+        \end{itemize}
+        \item Some applications of deep learning have comparatively more data than other applications
+        \begin{itemize}
+            \item Speech recognition has a lot of available labelled data
+            \item Image recognition has a lot of data but not ``enough'' for applications
+            \item Object detection had relatively little labelled data
+        \end{itemize}
+        \item Applications with comparatively more data can use simpler algorithms
+        \begin{itemize}
+            \item Applications with comparatively less data require more hand engineering of features 
+        \end{itemize}
+        \item Historically, computer vision relies more on hand engineered features
+        \begin{itemize}
+            \item Network architectures are also hand engineered for computer vision
+        \end{itemize}
+        \item Researchers also want to do well on benchmarks and win ML competitions
+        \begin{itemize}
+            \item Some researchers will use ideas that will specifically help the benchmark
+            \item Same ideas would not be used in a standard application 
+        \end{itemize}
+        \item Ensembling can give a slight increase to the performance of an algorithm
+        \begin{itemize}
+            \item Several networks are trained independently and the outputs are averaged
+            \item 3-15 networks can be used but will greatly slow down the running time
+        \end{itemize}
+        \item Multi-crop at test time is more computationally expensive and much slower
+        \begin{itemize}
+            \item The trained classifier is run on multiple versions of test images and results are averaged
+            \item 10-crop applies same network to 10 separate crops of the image
         \end{itemize}
     \end{itemize}
     \end{document}

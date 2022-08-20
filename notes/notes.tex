@@ -2340,4 +2340,127 @@
             \item 10-crop applies same network to 10 separate crops of the image
         \end{itemize}
     \end{itemize}
+
+    \section{Object Detection}
+    \subsubsection{Object Localization}
+    \begin{itemize}
+        \item Image classification identifies whether an object is contained within an image
+        \begin{itemize}
+            \item Classification with localization will identify the location of the object on the image
+            \item Detection will search and locate multiple objects in an image
+        \end{itemize}
+        \item For classification with localization, output of the NN will typically include a softmax output
+        \begin{itemize}
+            \item Output layer must also be modified to output the coordinates for the bounding box ($b_x, b_y, b_w, b_h$)
+        \end{itemize}
+        \item For a 4 class localization problem:
+        $$y=\begin{bmatrix}
+            P_c \\
+            b_x \\
+            b_y \\
+            b_h \\
+            b_w \\
+            c_1 \\
+            c_2 \\
+            c_3 \\
+        \end{bmatrix}$$
+        \begin{itemize}
+            \item $P_c$: 1 if an object has been identified
+            \item $b_x, b_y, b_h, b_w$: coordinates for the bounding box
+            \item $c_1, c_2, c_3$: class labels for 3 positive classes
+        \end{itemize}
+        $$\mathcal{L}(\hat{y}, y)=\begin{cases}
+            (\hat{y_1}-y_1)^2+(\hat{y_2}-y_2)^2+...+(\hat{y_8}-y_8)^2,&\text{if $y_1$=1} \\
+            (\hat{y_1}-y_1)^2,&\text{if $y_1$=0}
+        \end{cases}$$
+        \item In practice, feature loss for softmax output or logistic regression loss is used
+        \item NNs can be trained to output coordinates for landmarks in the image
+        \begin{itemize}
+            \item Training set must be labelled with all the landmarks on the image
+        \end{itemize}
+        \item Landmark detection can be used for AR filters or to track emotions and poses
+        \item Object detection with CNNs can be done with a sliding windows detection algorithm
+        \begin{itemize}
+            \item Training set should contain closely cropped images of wanted object
+            \item CNN can be trained to output label for closely cropped image
+            \item Trained CNN passed to the sliding windows classifier
+        \end{itemize}
+        \item For sliding windows classifier, specific window size is chosen and overlayed on the image
+        \begin{itemize}
+            \item Section of image in the window passed to the trained CNN
+            \item Window ``slides'' across the whole image 
+            \item After initial pass of image is made, a larger window size is used
+        \end{itemize}
+        \item Sliding windows detection is very computationally expensive
+        \begin{itemize}
+            \item A coarser stride can be used to reduce computational load
+            \item Larger stride length can damage the algorithm performance
+            \item Initial classifiers used, simpler classifiers with hand engineered features
+        \end{itemize}
+        \item Convolutional implementation of the sliding windows detection is more computationally feasible
+        \item FC layers can be transformed into convolutional layers
+        \begin{itemize}
+            \item For a input of $5\times 5\times 16$ to a FC layer, a $5\times 5$ filter can be used
+            \item 400 filters must be used for output to have the correct dimension
+            \item Softmax output can be seen as a $1\times 1\times n_{Cout}$ volume
+        \end{itemize}
+        \item Once the initial CNN is trained, the network can be run on the whole image
+        \begin{itemize}
+            \item Output from the image will be a volume that represents all the possible inputs to the CNN
+            \item Only requires forward propagation to be run once as computation is shared
+        \end{itemize}
+        \item Using convolutional implementation, bounding boxes still may not be very accurate
+        \begin{itemize}
+            \item Discrete steps may not match up exactly with the object
+            \item Object may be more rectangular in the image
+        \end{itemize}
+        \item YOLO algorithm will increase the accuracy of the bounding boxes
+        \begin{itemize}
+            \item Image is split into grid and object classifier run on each cell
+            \item Any located objects assigned to the cell containing the midpoint
+            \item Using above output and a $3\times 3$ grid, target output will be $3\times 3\times 8$
+            \item CNN should be chosen so that output is also $3\times 3\times 8$
+        \end{itemize}
+        \item Trained network will give precise bounding boxes for each cell
+        \begin{itemize}
+            \item Each cell cannot have more than a single object
+            \item For a fine grid, the chances of having more than one object in each cell is low
+            \item Algorithm is fast enough for real time object detection
+        \end{itemize}
+        \item When specifying the coordinates for the bounding box, $b_x$ and $b_y$ should be relative to their cell
+        \begin{itemize}
+            \item $b_h$ and $b_w$ should be a fraction of the cell dimensions
+            \item $b_h$ and $b_w$ can be larger than 1
+        \end{itemize}
+        \item Intersection over union can be used to evaluate an object detection algorithm
+        \begin{itemize}
+            \item Calculates the quotient of the intersection and union for the ground truth and predicted bounding box
+            \item May CV tasks judge the answer as correct if IoU $\geq 0.5$ 
+        \end{itemize}
+        \item Non-max suppression ensures the algorithm only detects each object once
+        \begin{itemize}
+            \item With the YOLO algorithm, more than one box may think it has the center of the object  
+        \end{itemize}
+        \item Algorithm starts by discarding rectangles with $p_c \leq0.6$
+        \begin{itemize}
+            \item Rectangle with the larges $p_c$ is chosen as prediction
+            \item Any other boxes with IoU $\geq0.5$ can be discarded
+        \end{itemize}
+        \item Non-max suppression should be carried out on each of the output classes
+        \item Anchor boxes can be used to allow cells to detect multiple objects
+        \begin{itemize}
+            \item Shapes for anchor boxes can be defined for possible objects in the image
+            \item Output vector $y$ will have a vector for each anchor box
+            \item Each object is assigned to the grid cell that contains the midpoint and anchor box that has the highest IoU
+        \end{itemize}
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=10cm]{29.png}
+        \end{figure}
+        \item If there are more objects than anchor boxes, alternative case should be implemented in the algorithm
+        \item Anchor boxes allow the algorithm to better specialize to certain objects
+        \begin{itemize}
+            \item K means algorithm can be used to group together object shapes that get detected
+        \end{itemize}
+    \end{itemize}
     \end{document}

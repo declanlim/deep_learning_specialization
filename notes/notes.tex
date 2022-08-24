@@ -2462,5 +2462,65 @@
         \begin{itemize}
             \item K means algorithm can be used to group together object shapes that get detected
         \end{itemize}
+        \item To train YOLO algorithm, all images in the training set must be properly labelled
+        \begin{itemize}
+            \item For each image, the output $y$ will be a volume with the vector $y$ for each cell
+            \item For each class, non-max suppression used to generate final predictions
+        \end{itemize}
+        \item Convolutional object classifiers will get run on all parts of the image
+        \begin{itemize}
+            \item Some areas of the image clearly do not have any object in them
+            \item R-CNN will use a segmentation algorithm to propose regions that likely have objects in them
+            \item All proposed regions run through the object classifier
+        \end{itemize}
+        \item R-CNN still a relatively slow algorithm
+        \begin{itemize}
+            \item Fast R-CNN uses a convolutional implementation to classify the proposed regions 
+            \item Faster R-CNN uses a CNN to propose the regions 
+        \end{itemize}
+        \item Semantic segmentation aims to identify an outline of any identified objects
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=16cm]{30.png}
+        \end{figure}
+        \begin{itemize}
+            \item Used by some self driving car teams to detect drivable roads
+            \item Used by medical teams to help with reading scans
+            \item Segmentation done with a U-Net
+        \end{itemize}
+        \item U-Net has to generate a matrix of labels for each image to segment each pixel
+        \begin{itemize}
+            \item First few layers of standard CNN can be reused
+            \item Last few layers of the CNN must make the output the same size as the input
+            \item Transpose convolution must be used to increase the height and width of each layer
+        \end{itemize}
+        \item Regular convolution will place filter on top of the input
+        \begin{itemize}
+            \item Transpose convolution will put the filter on top of the output
+        \end{itemize}
+        \item For each value in the input, filter gets multiplied by the input and overlayed on the output
+        \begin{itemize} 
+            \item Numbers for each filter get added to the output values
+            \item Values in the padding can be ignored
+        \end{itemize}
+        \item For the U-Net architecture, skip connections can be used to improve performance
+        \begin{itemize}
+            \item When the dimensions of the layers decrease in the CNN, spatial information is lost
+        \end{itemize}
+        \begin{figure}[ht]
+            \centering 
+            \includegraphics[width=16cm]{31.png}
+        \end{figure}
+        \item Conv and ReLU layers will increase number of channels in the image 
+        \begin{itemize}
+            \item Height and width will remain unchanged  
+        \end{itemize}
+        \item Max pool layers will decrease the height and width of the image
+        \begin{itemize}
+            \item Number of channels will remain constant
+        \end{itemize}
+        \item After transpose convolutions are used, corresponding conv layer will use a skip connection
+        \item Last layer will be a $1\times 1$ convolution
+        \item Dimension of last layer will be $h\times w\times n_{classes}$
     \end{itemize}
     \end{document}

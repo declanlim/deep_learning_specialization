@@ -2341,8 +2341,7 @@
         \end{itemize}
     \end{itemize}
 
-    \section{Object Detection}
-    \subsubsection{Object Localization}
+    \subsection{Object Detection}
     \begin{itemize}
         \item Image classification identifies whether an object is contained within an image
         \begin{itemize}
@@ -2478,6 +2477,7 @@
             \item Fast R-CNN uses a convolutional implementation to classify the proposed regions 
             \item Faster R-CNN uses a CNN to propose the regions 
         \end{itemize}
+        \subsubsection{U-Nets}
         \item Semantic segmentation aims to identify an outline of any identified objects
         \begin{figure}[ht]
             \centering
@@ -2522,5 +2522,130 @@
         \item After transpose convolutions are used, corresponding conv layer will use a skip connection
         \item Last layer will be a $1\times 1$ convolution
         \item Dimension of last layer will be $h\times w\times n_{classes}$
+    \end{itemize}
+
+    \subsection{Special Applications of CNNs}
+    \subsubsection{Face Recognition}
+    \begin{itemize}
+        \item Face recognition can be paired with liveness detection to distinguish real faces from images
+        \item Face verification takes an input image and an ID
+        \begin{itemize}
+            \item Output will state if the input image is the same as the ID
+        \end{itemize}
+        \item Face recognition will take an input image and compare it to $K$ different people
+        \begin{itemize}
+            \item Output will give the ID of any recognized person
+        \end{itemize}
+        \item Face verification system may have a very low 1\% error rate
+        \begin{itemize}
+            \item If the system is used fro face recognition with a database of 100 people, error will be very high 
+        \end{itemize}
+        \item Majority of face recognition systems must be able to recognize a person from a single example (one-shot learning problem)
+        \begin{itemize}
+            \item Deep learning problems don't tend to work well with a single example   
+        \end{itemize}
+        \item Standard CNN with softmax output won't be able to learn well 
+        \begin{itemize}
+            \item If another person is added to the database, the whole CNN must be retrained
+        \end{itemize}
+        \item Face recognition functions will learn a similarity function to output the degree of difference between images
+        \begin{itemize}
+            \item If $d(\text{img1, img2})\leq \tau$ the images are the ``same''
+        \end{itemize}
+        \item Similarity function will be run on all images in the database
+        \item Siamese network can be used to create the similarity function
+        \begin{itemize}
+            \item Standard CNN ends with a feature vector being fed to a softmax unit
+            \item Final layer of the CNN can be seen as an encoding of the input image $x^{(1)}$
+            \item Siamese network runs the same CNN network on two inputs and compares the output
+        \end{itemize}
+        \item Difference between the images can be calculated as the norm between the 2 vectors: 
+        $$d(x^{(1)}, x^{(2)})=||f(x^{(1)})-f(x^{(2)})||^2$$
+        \item Parameters of the CNN define the encoding $f(x^{(i)})$
+        \begin{itemize}
+            \item If $x^{(i)}$ and $x^{(j)}$ are the same person, $||f(x^{(i)})-f(x^{(j)})||^2$ should be small
+            \item If $x^{(i)}$ and $x^{(j)}$ are different people, $||f(x^{(i)})-f(x^{(j)})||^2$ should be large
+        \end{itemize}
+        \item Parameters of the CNN can be learnt by using gradient descent on the triplet loss function
+        \begin{itemize}
+            \item Triplet loss will look at an anchor image, positive image and negative image
+            \item Want $d(A,P)\leq d(A,N)$
+        \end{itemize}
+        \item Loss function can have a trivial solution where all encodings get output to 0
+        $$||f(A)-f(P)||^2-||f(A)-f(N)||^2+\alpha\leq 0$$
+        \begin{itemize}
+            \item Adding constant $\alpha$ prevents the trivial solution from being learnt
+        \end{itemize}
+        $$\mathcal{L}(A,P,N)=\max(||f(A)-f(P)||^2-||f(A)-f(N)||^2+\alpha, 0)$$
+        $$J=\sum_{i=1}^m\mathcal{L}(A^{(i)}, P^{(i)}, N^{(i)})$$ 
+        \item Training the system requires sets of anchor, positive and negative images
+        \item During training, if $A,P,N$ are chosen randomly, loss function is easily satisfied
+        \begin{itemize}
+            \item Ideally, chosen triplets should be ``hard'' to train on ($d(A,P)\approx d(A,N)$)
+        \end{itemize}
+        \item Large scale face recognition systems can be trained on datasets with 10,000,000+ images
+        \item Face recognition can also be seen as a binary classification problem
+        \begin{itemize}
+            \item Outputs from the siamese networks can be fed to a logistic regression unit
+            \item Training set will require pairs of images
+        \end{itemize}
+        $$\hat{y}=\sigma\left(\sum_{k=1}^{128}w_k|f(x^{(i)})_k-f(x^{(j)})_k|+b\right)$$
+        \item Different formula can be used to combine both outputs
+        \begin{itemize}
+            \item Chi Squared similarity
+        \end{itemize}
+        $$\frac{\left(f(x^{(i)})_k-f(x^{(j)})_k\right)^2}{f(x^{(i)})_k+f(x^{(j)})_k}$$
+        \item With Siamese networks, values can be precomputed for stored images
+    \end{itemize}
+
+    \subsubsection{Neural Style Transfer}
+    \begin{itemize}
+        \item Neural style transfer allows existing content to be generated in a different style
+        \item To visualize the learning of a CNN, can manually look for image patches that maximize the unit's activation
+        \begin{itemize}
+            \item First layers of the network will detect simple patterns or colors
+            \item Deeper layers will detect more complex patterns and will start to detect certain objects
+        \end{itemize}
+        \item Cost function can be defined to see how ``good'' an image is
+        $$J(G)=\alpha J_{content}(C,G)+\beta J_{style}(S,G)$$
+        \item The new image $G$ will be first initialized randomly
+        \begin{itemize}
+            \item Use gradient descent to minimize $J(G)$
+            \item Gradient descent will change the pixel values of the image
+        \end{itemize}
+        \item A layer $l$ will be chosen to compute the content cost
+        \begin{itemize}
+            \item If the layer $l$ is too shallow, the pixel values are forced to be very close to the content image
+            \item If the layer $l$ is too deep, the content may be too dissimilar
+        \end{itemize}
+        \item Using a pre trained CNN, activations of the images on layer $l$ can be calculated
+        \begin{itemize}
+            \item If $a^{[l](c)}$ and $a^{[l](G)}$ are similar, both images have similar content
+        \end{itemize}
+        $$J_{content}(C,G)=\frac{1}{2}\left|\left|a^{[l](C)}-a^{[l](g)}\right|\right|^2$$
+        \item The style of a layer can be calculated as the correlation between activations across different channels
+        \begin{itemize}
+            \item All pixels can be compared with the corresponding pixel in a different channel
+            \item A single pixel will have a specific pattern that results in high activation
+            \item Correlation between the layers show which patterns tend to occur together
+        \end{itemize}
+        \item Style matrix can be defined:
+        \begin{itemize}
+            \item Let $a_{i,j,k}^{[l]}$ be the activation of layer $l$ at $(i,j,k)$
+            \item $G^{[l]}$ is a $n_c^{[l]}\times n_c^{[l]}$ matrix 
+            $$G^{[l](G)}_{k~k'}=\sum_{i=1}^{n_H^{[l]}}\sum_{j=1}^{n_w^{[l]}}a^{[l](G)}_{i,j,k}~a^{[l](G)}_{i,j,k'}$$
+            \item $G$ is calculated for all values of $k$ and $k'$ for the style image and generated image
+        \end{itemize}
+        \item Style cost function is then the difference between the style matrices
+        \begin{align*}
+            J_{style}^{[l]}(S,G)&=\left|\left|G^{[l](S)}-G^{[l](G)}\right|\right|^2_F \\
+            &=\frac{1}{\left(2n_H^{[l]}n_W^{[l]}n_C^{[l]}\right)^2}\sum_k\sum_{k'}\left(G_{k~k'}^{[l](S)}-G_{k~k'}^{[l](G)}\right)^2
+        \end{align*}
+        \begin{itemize}
+            \item Constant comes from original authors of the paper
+            \item Constant will be superseded by the constant in the overall style transfer const function
+        \end{itemize}
+        \item Performance is increased when the style cost function is taken from multiple layers
+        $$J_{style}(S,G)=\sum_l\lambda^{[l]}J_{style}^{[l]}(S,G)$$
     \end{itemize}
     \end{document}

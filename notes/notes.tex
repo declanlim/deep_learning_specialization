@@ -2647,5 +2647,13 @@
         \end{itemize}
         \item Performance is increased when the style cost function is taken from multiple layers
         $$J_{style}(S,G)=\sum_l\lambda^{[l]}J_{style}^{[l]}(S,G)$$
+        \begin{itemize}
+            \item Using all layers of the CNN allows all levels of features to be used
+        \end{itemize}
+        \item Convolutions can also be applied to 1D data
+        \begin{itemize}
+            \item ECG data can be convolved with a 1D filter
+            \item CT scans can be convolved with a 3D filter
+        \end{itemize}
     \end{itemize}
     \end{document}

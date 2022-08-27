@@ -2656,4 +2656,81 @@
             \item CT scans can be convolved with a 3D filter
         \end{itemize}
     \end{itemize}
+    \pagebreak
+
+    \section{Sequence Models}
+    \subsection{Recurrent Neural Networks}
+    \begin{itemize}
+        \item Sequence models work with different types of sequence data
+        \begin{itemize}
+            \item Speech recognition: input and output both sequence data
+            \item Music generation: output is sequence data, input can be multiple types (also $\emptyset$)
+            \item Sentiment classification: input is sequence data, output is usually categorical
+            \item DNA sequence analysis: input and output both sequence data
+            \item Machine translation: input and output both sequence data
+            \item Video activity recognition: input is sequence data
+            \item Name entity recognition: input is sequence data 
+        \end{itemize} 
+        \item Name entity recognition used by search engines to index entities from text
+        \begin{itemize}
+            \item Input will be a sequence of words
+            \item Output can be a list of numbers corresponding to each word in the sequence
+        \end{itemize}
+        \item For sequence data:
+        \begin{itemize}
+            \item $x^{(i)<t>}$: $t^{th}$ element in example $i$
+            \item $y^{(i)<t>}$: $t^{th}$ element in example $i$
+            \item $T_x^{(i)}$: length of the input for example $i$
+            \item $T_y^{(i)}$: length of the output for example $i$
+        \end{itemize}
+        \item NLP applications will have a dictionary of known words
+        \begin{itemize}
+            \item Dictionary can come from most common words in training set or from online sources  
+        \end{itemize}
+        \item One-hot representation can be used for words in the sequence data
+        \begin{itemize}
+            \item Each word will be a vector of the same length as the dictionary
+        \end{itemize}
+        \item For words that are not in the vocabulary, $<$unk$>$ token can be used to represent the word
+        \item Standard network taking one hot vectors as input doesn't work well in practice
+        \begin{itemize}
+            \item For different examples, inputs and outputs can be different lengths
+            \item Standard NN won't share features learned across different positions of text 
+            \item Standard NN would have large numbers of parameters in hidden layers 
+        \end{itemize}
+        \item A recurrent neural network takes each input into a layer one at a time
+        \begin{itemize}
+            \item Outputs of each layer passed to the next instance of the layer
+            \item First layers will have a vector of 0s
+        \end{itemize}
+        \item Parameters for each time step are shared
+        \begin{itemize}
+            \item $W_{aa}$ for the horizontal activations between layers
+            \item $W_{ax}$ for the input to the each layer
+            \item $W_{ya}$ for the output predictions
+        \end{itemize}
+        \item Version of RNN can only use information from previous words
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=10cm]{32.png}
+        \end{figure}
+        $$a^{<t>}=g(W_{aa}a^{<t-1>}+W_{ax}x^{<t>}+b_a)$$
+        $$\hat{y}^{<t>}=g(W_{ya}a^{<t>}+b_y)$$
+        \begin{itemize}
+            \item For parameters, first letter is the output quantity, second letter is the input quantity
+            \item Activation function for the input values is typically tanh or ReLU
+            \item Activation function for the prediction depends on the output type
+        \end{itemize}
+        \item Notation can be simplified to have a single parameter matrix for each equation
+        $$W_a=\begin{bmatrix}
+            W_{aa} & \mid & W_{ax}
+        \end{bmatrix}$$
+        $$[a^{<t-1>},~x^{<t>}]=\begin{bmatrix}
+            a^{<t-1>} \\
+            \text{---} \\
+            x^{<t>}
+        \end{bmatrix}$$
+        $$a^{<t>}=g(W_a[a^{<t-1>},~x^{<t>}]+b_a)$$
+        $$\hat{y}^{<t>}=g(W_ya^{<t>}+b_y)$$
+    \end{itemize}
     \end{document}

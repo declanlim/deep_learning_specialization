@@ -2691,7 +2691,6 @@
         \begin{itemize}
             \item Each word will be a vector of the same length as the dictionary
         \end{itemize}
-        \item For words that are not in the vocabulary, $<$unk$>$ token can be used to represent the word
         \item Standard network taking one hot vectors as input doesn't work well in practice
         \begin{itemize}
             \item For different examples, inputs and outputs can be different lengths
@@ -2732,5 +2731,165 @@
         \end{bmatrix}$$
         $$a^{<t>}=g(W_a[a^{<t-1>},~x^{<t>}]+b_a)$$
         $$\hat{y}^{<t>}=g(W_ya^{<t>}+b_y)$$
+        \item Backprop through an RNN will usually be included in a programming framework
+        \item Overall loss for RNN is the sum of the individual losses per time step
+        $$\mathcal{L}^{<t>}(\hat{y}^{<t>},y^{<t>})=-y^{<t>}\log\hat{y}^{<t>}-(1-y^{<t>})\log(1-\hat{y}^{<t>})$$
+        $$\mathcal{L}(\hat{y}, y)=\sum_{t=1}^{T_y}\mathcal{L}^{<t>}(\hat{y}^{<t>},y^{<t>})$$
+        \item Most significant calculation comes from the backprop of the activation values
+        \item RNN architecture can be modified if $T_x$ and $T_y$ don't match up
+        \begin{itemize}
+            \item Input and output can be different types (sentiment classification)
+            \item Input and output can be the same data type but have different lengths (machine translation)
+        \end{itemize}
+        \item Many to many architecture works when $T_x$ is the same as $T_y$
+        \begin{itemize}
+            \item Many to one architecture has a single output in the final time step 
+            \item One to many architecture has a single input in the first time step
+        \end{itemize}
+        \item Many to many architecture must be modified if $T_x$ and $T_y$ are not the same
+        \begin{itemize}
+            \item RNN split into encoder and decoder to first read all the input then give all the output
+        \end{itemize}
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=16cm]{33.png}
+        \end{figure}
+    \end{itemize}
+    \subsubsection{Language Modelling}
+    \begin{itemize}
+        \item RNNs commonly used for language modelling in natural language processing
+        \begin{itemize}
+            \item Language modelling can be used to distinguish homonyms in sentences
+            \item Used in speech recognition and machine translation systems
+        \end{itemize}
+        \item Given a random sentence, language model will give the probability of a sequence of words
+        $$P(y^{<1>}, y^{<2>},y^{<3>},...,y^{T_y})$$ 
+        \item Training set for language model requires a large corpus of English text
+        \begin{itemize}
+            \item Input sentence should first be tokenized
+            \item End of the sentence can be marked with a token $<$EOS$>$
+            \item Punctuation can be included in the vocabulary and included as tokens
+        \end{itemize}
+        \item Words that aren't in the dictionary can be replaced with an $<$UNK$>$ token 
+        \item RNN model will use a softmax layer to predict the chance of the words in the dictionary
+        \begin{itemize}
+            \item Softmax layer will have as many outputs as words in the dictionary 
+            \item Layer will have outputs for additional tokens as well
+            \item First time step will have $a^{<0>}=\overrightarrow{0}$ and $x^{<0>}=\overrightarrow{0}$
+        \end{itemize} 
+        \item For the second layer, $x^{<2>}=y^{<1>}$
+        \begin{itemize}
+            \item Layer will try to predict the probability of the second word given the first word
+        \end{itemize}
+        $$\hat{Y}^{<2>}=P(y^{<2>}|y^{<1>})$$ 
+        \item Softmax loss function used to train the RNN for language modelling
+        $$\mathcal{L}(\hat{y}^{<t>},y^{<t>})=-\sum_iy_i^{<t>}\log\hat{y}_i^{<t>}$$ 
+        $$\mathcal{L}=\sum_t\mathcal{L}^{<t>}(\hat{y}^{<t>},y^{<t>})$$
+        \item Once a sequence model has been trained, performance can be gauged by sampling novel sequences
+        \begin{itemize}
+            \item The output of each layer will be a distribution of probabilities for all possible words
+            \item Random sample can be taken over the distribution for each layer
+            \item Instead of passing the actual word $y^{<1>}$ to the next layer, $\hat{y}^{<1>}$ is passed instead
+        \end{itemize}
+        \item Novel sequence can be programmed to reject $<$UNK$>$ token from the sequence
+        \item Novel sequence can continue until a $<$EOS$>$ token is predicted
+        \begin{itemize}
+            \item Length of the novel sequence can also be pre set
+        \end{itemize}
+        \item Language model can also be made at the character level
+        \begin{itemize}
+            \item Dictionary would be changed to include letters, punctuation and numbers 
+            \item Character level model will not need to include $<$UNK$>$ tokens
+            \item Sequences from the character model will be much longer than word level models
+        \end{itemize}
+        \item English can have very long term dependencies across sentences 
+        \begin{itemize}
+            \item Basic RNN doesn't do a very good job at capturing long term dependencies
+            \item Errors associated with later time steps have a small effect due to vanishing gradients 
+            \item Basic RNN model tends to have mainly local influences
+        \end{itemize}
+        \item Exploding gradients often leads to numerical overflow in the RNN
+        \begin{itemize}
+            \item Gradient clipping can be used to ``clip'' gradients that are above a chosen threshold
+        \end{itemize}
+        \item More complex applications may require a deep RNN
+        \begin{itemize}
+            \item Deep RNNs use a RNN as a single layer in a standard NN
+        \end{itemize}
+        \item Notation must be modified to distinguish between layers
+        \begin{itemize}
+            \item $a^{[2]<1>}$ is the first activation in the second layer
+            \item Each layer will have its own parameters $W_a^{[l]}$ and $b_a^{[l]}$
+        \end{itemize}
+        $$a^{[l]<t>}=g(W_a^{[l]}[a^{[l]<t-1>},a^{[l-1]<t>}]+b_a^[l])$$ 
+        \item Deep RNN will not have a lot of layers due to computational cost
+        \item Output from a deep RNN may be fed to an unconnected deep network
+    \end{itemize}
+    \subsubsection{Gated Recurent Unit (GRU)}
+    \begin{itemize}
+        \item GRU modifies the standard RNN layer that helps it to capture long range connections
+        \begin{itemize}
+            \item Helps with the vanishing gradient problem
+        \end{itemize}
+        \item The GRU unit will have a variable $c$ for a memory cell
+        $$c^{<t>}=a^{<t>}$$
+        \item At every time step, unit will consider overwriting the memory cell with $\tilde{c}^{<t>}$
+        $$\tilde{c}^{<t>}=\tanh(W_c[\Gamma_r*c^{<t-1>},x^{<t>}]+b_c)$$
+        $$\Gamma_u=\sigma(W_u[c^{<t-1>},x^{<t>}]+b_u)$$
+        $$\Gamma_r=\sigma(W_r[c^{<t-1>},x^{<t>}]+b_r)$$
+        \item The ``gate'' will decide if the memory cell will get updated
+        \begin{itemize}
+            \item Since sigmoid is used for the gate function, value will likely be close to 0 or 1
+        \end{itemize}
+        \item $\Gamma_r$ is the relevance of $c^{<t-1>}$
+        $$c ^{<t>}=\Gamma_u*\tilde{c}^{<t>}+(1-\Gamma_u)*c^{<t-1>}$$
+        \item $c^{<t>},\tilde{c}^{<t>}$ and $\Gamma_u$ will all be the same dimensions
+        \begin{itemize}
+            \item Element wise multiplication used if values are vectors
+        \end{itemize}
+    \end{itemize}
+    \subsubsection{Long Short Term Memory (LSTM) unit}
+    \begin{itemize}
+        \item LSTM is a more general version of the GRU
+        \begin{itemize}
+            \item Memory gate value doesn't have to be the same as the activation values
+        \end{itemize}
+    \end{itemize}
+    $$\tilde{c}^{<t>}=\tanh(W_c[a^{<t-1>},x^{<t>}]+b_c)$$  
+    $$\Gamma_u=\sigma(W_u[a^{<t-1>},x^{<t>}]+b_u)$$
+    $$\Gamma_f=\sigma(W_f[a^{<t-1>},x^{<t>}]+b_f)$$ 
+    $$\Gamma_o=\sigma(W_o[a^{<t-1>},x^{<t>}]+b_o)$$
+    $$c^{<t>}=\Gamma_u*\tilde{c}^{<t>}+\Gamma_f*c^{<t-1>}$$ 
+    $$a^{<t>}=\Gamma_o*\tanh(c^{<t>})$$
+    \begin{figure}[ht]
+        \centering 
+        \includegraphics[width=12cm]{34.png}
+    \end{figure}
+    \begin{itemize}
+        \item $a^{<t-1>}$ and $x^{<t>}$ used to calculate each gate
+        \item When LSTMs are used in a sequence, values from $c^{<0>}$ can easily pass through each LSTM
+        \item Peephole LSTM adds the value of $c^{<t-1>}$ to the matrix in the gate
+        \item GRU is a simpler model
+        \begin{itemize}
+            \item Runs faster and scales to larger models
+        \end{itemize}
+        \item LSTM is more powerful and flexible than the GRU
+    \end{itemize}
+    \subsubsection{Bidirectional RNNs (BRNN)}
+    \begin{itemize}
+        \item Bidirectional RNNs can take information from further ahead in a sequence
+        \begin{itemize}
+            \item Architecture allows each unit to use information from anywhere in the sequence
+        \end{itemize}
+        \item Model requires the whole sequence to be read in before being used
+        \begin{itemize}
+            \item Real time speech recognition models have more complex models that work in real time
+        \end{itemize}
+        \item BRNN will have both $\overrightarrow{a}^{<t>}$ and $\overleftarrow{a}^{<t>}$ 
+        \begin{itemize}
+            \item Output $\hat{y}^{<t>}$ from the model will use both $\overrightarrow{a}^{<t>}$ and $\overleftarrow{a}^{<t>}$
+        \end{itemize}
+        $$\hat{y}^{<t>}=g(W_y[\overrightarrow{a}^{<t>},\overleftarrow{a}^{<t>}]+b_y)$$
+        \item For NLP, BRNN with LSTM is commonly used
     \end{itemize}
     \end{document}

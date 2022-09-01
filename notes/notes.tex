@@ -2894,4 +2894,124 @@
     \end{itemize}
 
     \subsection{Natural Language Processing and Word Embeddings}
+    \begin{itemize}
+        \item Word embeddings allow algorithms to understand analogies in words
+        \begin{itemize}
+            \item Word embeddings allow NLP applications to be made with relatively small training sets
+        \end{itemize}
+        \item Words in RNNs represented using a vocabulary of words and one-hot representation
+        \begin{itemize}
+            \item Representation treats words as separate objects
+            \item Algorithm cannot generalize across different words
+        \end{itemize}
+        \item Featurized representation of words can be created for all words in the dictionary
+        \begin{itemize}
+            \item Words can then be described in terms of their features instead of the one-hot representation
+            \item Featurized representation allows algorithm to make connections between related words 
+        \end{itemize}
+        \item Learned features for word representation may not have a well defined meaning 
+        \item Feature vector for words can be visualized in 2D using the t-SNE algorithm
+        \item Word embeddings will help with named entity recognition
+        \begin{itemize}
+            \item Algorithm will be able to generalize better to structures it has seen before 
+        \end{itemize}
+        \item Algorithms to learn word embeddings can work with very large text corpuses
+        \begin{itemize}
+            \item Initial model can be trained with large corpus with 1b-100b words
+            \item Transfer learning can then be used for NLP application with a smaller dataset
+        \end{itemize}
+        \item Word embedding representation will be much smaller than the one-hot representation
+        \begin{itemize}
+            \item Word embedding representation will be a much smaller vector but a lot more dense 
+        \end{itemize}
+        \item Difference between words in word embeddings allows algorithms to learn analogies
+        \begin{itemize}
+            \item The vectors $e_{man}-e_{woman}$ and $e_{king}-e_{queen}$
+        \end{itemize}
+        \item Given a word pair, algorithm can search the dictionary for the most similar word pair
+        $$\mathop{\text{maximize}}_{\textbf{w}}~~\text{sim}(e_w,e_{king}-e_{man}+e_{woman})$$
+        \item Cosine similarity commonly used for similarity function
+        $$\text{sim}(u,v)=\frac{u^Tv}{||u||_2||v||_2}$$
+        \item Euclidean distance between vectors can also be used
+        \begin{itemize}
+            \item Distance calculated the ``dissimilarity'' between vectors so the negative should be taken
+        \end{itemize}
+        \item Embedding matrix will be learned to represent all the words in the dictionary
+        \begin{itemize}
+            \item Product of embedding matrix and one hot representation of a word gives the word embedding representation
+        \end{itemize}
+        $$E\times O_x=E_x$$
+    \end{itemize}
+    \subsubsection{Learning Word Embeddings}
+    \begin{itemize}
+        \item Word embeddings can be learned with a standard NN
+        \begin{itemize}
+            \item Previous $n$ words before the blank word converted into the word embedding representation
+            \item All vectors $e_w$ passed into a NN layer then a softmax layer
+            \item NN can be trained with parameters $W^{[l]}$ and $b^{[l]}$ for each layer
+        \end{itemize}
+        \item Context for learning the word embedding can change depending on the goal
+        \begin{itemize}
+            \item For a language model, context should be a few words before the target word
+            \item Other problems could give only the previous word or the previous and following words
+            \item Nearby one word can choose a random word close to the target word
+        \end{itemize}
+    \end{itemize}
+
+    \vspace{35mm}
+    \textbf{Word2Vec}
+    \begin{itemize}
+        \item Word2Vec will define skip-grams for a sentence
+        \begin{itemize}
+            \item Words can be picked at random to be the context word
+            \item Other words within a chosen window randomly picked as the context word
+        \end{itemize}
+        \item Model first converts context word to the embedded vector representation
+        $$E_c=E O_c$$  
+        \item Embedded vector then fed to a softmax unit to predict $\hat{y}$
+        $$p(t|c)=\frac{e^{\theta_t^Te_c}}{\sum_{j=1}^{10,000}e^{\theta_j^Te_c}}$$
+        \begin{itemize}
+            \item $\theta_t$ is the parameter associated with the output $t$
+        \end{itemize}
+        $$\mathcal{L}(\hat{y},y)=-\sum_{i=1}^{10,000}y_i\log\hat{y}_i$$
+        \begin{itemize}
+            \item Prediction and ground truth represented as one hot vectors for loss function
+        \end{itemize}
+        \item Softmax classification for the dictionary is very slow 
+        \begin{itemize}
+            \item Hierarchical softmax classifier first uses a classifier to find the correct word 
+            \item Hierarchical classifier is usually designed so the more common results are encountered first
+        \end{itemize}
+        \item In practice, words are not sampled uniformly to avoid common words (the, of, a, and,...)
+        \begin{itemize}
+            \item In practice, different heuristics are used to balance the sampling between common and less common words
+        \end{itemize}
+    \end{itemize}
+    
+    \vspace{5mm}
+    \textbf{Negative Sampling}
+    \begin{itemize}
+        \item Negative sampling modifies the skip-gram learning problem to make the learning more efficient
+        \item Problem aims to find if a pair of words are a context target pair
+        \begin{itemize}
+            \item Positive examples sampled using the skip-gram method
+            \item Negative examples will choose a random word from the dictionary for the target
+            \item Negative examples in dataset may potentially appear as positive examples in the corpus
+        \end{itemize}
+        \item Supervised learning can be used on the generated training set to learn the correct labels
+        \item Value of $k$ recommended to be 5-20
+        \begin{itemize}
+            \item Smaller values of $k$ can be used for larger datasets
+        \end{itemize}
+        $$P(y=1|c,t)=\sigma(\theta_t^Te_c)$$
+        \item Each iteration of the algorithm will train $k+1$ examples
+        \begin{itemize}
+            \item Algorithm splits the dictionary into separate binary classification problems
+        \end{itemize}
+        \item Original authors used a heuristic to sample the negative examples
+        \begin{itemize}
+            \item Heuristic took a middle ground between random sampling and sampling the observed distribution
+        \end{itemize}
+        $$P(w_i)=\frac{f(w_i^\frac{3}{4})}{\sum_{j=1}^{10,000}f(w_j)^\frac{3}{4}}$$
+    \end{itemize}
     \end{document}

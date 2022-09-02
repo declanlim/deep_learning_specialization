@@ -2909,7 +2909,10 @@
             \item Words can then be described in terms of their features instead of the one-hot representation
             \item Featurized representation allows algorithm to make connections between related words 
         \end{itemize}
-        \item Learned features for word representation may not have a well defined meaning 
+        \item Learned features for word representation may not have a well defined meaning
+        \begin{itemize}
+            \item Learned features may not be parallel to human defines axes
+        \end{itemize}
         \item Feature vector for words can be visualized in 2D using the t-SNE algorithm
         \item Word embeddings will help with named entity recognition
         \begin{itemize}
@@ -3013,5 +3016,75 @@
             \item Heuristic took a middle ground between random sampling and sampling the observed distribution
         \end{itemize}
         $$P(w_i)=\frac{f(w_i^\frac{3}{4})}{\sum_{j=1}^{10,000}f(w_j)^\frac{3}{4}}$$
+    \end{itemize}
+
+    \vspace{5mm}
+    \textbf{GloVe Algorithm (Global Vectors for Word Representation)}
+    \begin{itemize}
+        \item Not used as widely as Word2Vec or skip-gram models
+        $$X_{ij} =\text{ \# times $j$ appears in the context of $i$}$$
+        \begin{itemize}
+            \item $i$ plays the role of $c$ and $j$ plays the role of $t$ 
+        \end{itemize}
+        \item Depending on definition of context, $X_{ij}$ may not be symmetric
+        $$\mathop{\text{minimize}}_{\textbf{w}}~~\sum_{i=1}^{10,000}\sum_{j=1}^{10,000}f(X_{ij})(\Theta_i^Te_j+b_i+b_j-\log X_{ij})$$
+        \begin{itemize}
+            \item $f(X_{ij})=0$ if $X_{ij}=0$ 
+            \item Causes the equation to only sum over pairs of words that have occurred at least once
+            \item Also balances the weighting between common and infrequent words
+        \end{itemize}
+        \item $\Theta_i$ and $e_j$ are symmetric
+    \end{itemize}
+    \subsubsection{Sentiment Classification}
+    \begin{itemize}
+        \item Aims to predict whether individual likes or dislikes the subject of a sentence
+        \item Can be hard to find a good labelled training set for sentiment classification
+        \begin{itemize}
+            \item Word embedding can be used to build powerful classifiers with relatively small training sets
+        \end{itemize}  
+        \item Simple sentiment classification model will average or sum the embedding vectors for each word
+        \begin{itemize}
+            \item 300D vector then fed to a softmax layer to predict the sentiment
+            \item Average operation works better as it can deal with reviews of any length 
+        \end{itemize}
+        \item Basic model doesn't look at the order of the words
+        \begin{itemize}
+            \item ``Lacking in good...'' may be treated as a positive review
+            \item Many-to-one RNN can be used with the embedding representation 
+        \end{itemize}
+        \item RNN wil be able to make a better prediction based on the word order of the sentence
+    \end{itemize}
+    \subsubsection{Debiasing Word Embeddings}
+    \begin{itemize}
+        \item Word embeddings trained on a large corpus learned different human biases
+        \begin{itemize}
+            \item Man $\rightarrow$ Computer\_Programmer as Woman $\rightarrow$ Homemaker
+            \item Father $\rightarrow$ Doctor as Mother $\rightarrow$ Nurse
+        \end{itemize}
+        \item Machine learning algorithms being used to make more important decisions in the modern world
+        \begin{itemize}
+            \item College admissions
+            \item Job applications
+            \item Loan applications
+            \item Sentencing guidelines
+        \end{itemize}
+        \item To address bias in word embeddings:
+        \begin{itemize}
+            \item Identify the direction corresponding to the specific bias 
+            \begin{itemize}
+                \item[] Subtract related pairs and average the differences
+            \end{itemize}
+            \item For every word that is non-definitional, project the vectors to remove the bias
+            \begin{itemize}
+                \item[] By definition, many words will capture the ideas behind the bias
+                \item[] Non-definitional words should be projected onto an axis perpendicular to the bias direction 
+            \end{itemize}
+            \item Equalize remaining pairs
+            \begin{itemize}
+                \item[] Remaining words that should be bias neutral can normalized 
+                \item[] Pairs should be equidistant from axis for non-definitional words
+            \end{itemize}
+        \end{itemize}
+        \item Original authors trained a classifier to find words that should be neutralized for each bias
     \end{itemize}
     \end{document}

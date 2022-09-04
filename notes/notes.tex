@@ -3087,4 +3087,169 @@
         \end{itemize}
         \item Original authors trained a classifier to find words that should be neutralized for each bias
     \end{itemize}
+    \subsection{Sequence Models \& Attention Mechanism}
+    \begin{itemize}
+        \item Sequence to sequence models use an encoder and decoder RNN
+        \begin{itemize}
+            \item Input to the decoder network is the output of the encoder network
+            \item Decoder network will feed each output to the next stage of the network
+        \end{itemize}
+        \item Similar architecture can be used for image captioning
+        \begin{itemize}
+            \item Output from a CNN (without softmax) can be fed to an decoder network
+        \end{itemize}
+        \item Machine translation can be seen as a conditional language model
+        \begin{itemize}
+            \item Output $\hat{y}$ is conditional to the input $x$  
+        \end{itemize}
+        $$P(y^{<1>},...,y^{<T_y>}\mid x^{<1>},...,x^{<T_x>})$$
+        \begin{figure}[ht]
+            \centering
+            \includegraphics[width=10cm]{35.png}
+        \end{figure}
+        \item Output for a machine translation model should not be randomly sampled
+        $$\mathop{\text{arg max}}_{y^{<1>},...,y^{<T_y>}}P(y^{<1>},...,y^{<T_y>}\mid x)$$
+        \item Greedy search will look for highest probability choice at each word
+        \begin{itemize}
+            \item Final result may not be the optimal translation 
+        \end{itemize}
+        \item For a dictionary of 10,000 words, there are $10,000^{10}$ sentences with 10 words
+        \begin{itemize}
+            \item Approximate search can be used to try and find the optimal sentence
+        \end{itemize}
+        \item Beam search will consider $B$ options at each stage of the network
+        \begin{itemize}
+            \item At each step of the network, beam search will save the top $B$ options
+        \end{itemize}
+        \item For each option saved, a fragment of the RNN is used to generate all possible choices
+        \begin{itemize}
+            \item Beam search will choose the highest $B$ probabilities at that stage of the NN
+            \item Previous candidates may be eliminated from the sequence if the probabilities are not high enough
+        \end{itemize}
+        \item Each stage of the network will have $B\times\text{dictionary size}$ options
+        \item For a beam width of 1, the search is equivalent to greedy search
+        \item Length normalization can be used to improve the performance of beam search
+        \begin{itemize}
+            \item Total probability is a product of all the individual probabilities
+            \item For a normal sized dictionary, product of all probabilities will be exponentially small
+            \item $\log$ operation can be used to maximize the sum of the probabilities
+            \begin{itemize}
+                \item[] ($\log$ is strictly monotonically increasing)
+            \end{itemize}
+        \end{itemize}
+        $$\mathop{\text{arg max}}_{y}\prod_{t=1}^{T_y}P(y^{<t>}\mid x,y^{<1>},...,y^{<t-1>})$$
+        $$\mathop{\text{arg max}}_{y}\sum_{t=1}^{T_y}\log P(y^{<t>}\mid x,y^{<1>},...,y^{<t-1>})$$
+        \item As the total probability is a product, algorithm can perform better on short sentences
+        \begin{itemize}
+            \item Sum of probabilities can be normalized by the number of words in the output
+            \item Heuristic used in practice for to give a softer normalization
+        \end{itemize}
+        $$\mathop{\text{arg max}}_{y}\frac{1}{{T_y}^\alpha}\sum_{t=1}^{T_y}\log P(y^{<t>}\mid x,y^{<1>},...,y^{<t-1>})$$
+        \item Final algorithm will take all output sentences and score them with the objective function
+        \begin{itemize}
+            \item Sentence with the highest probability given as the final output
+        \end{itemize}
+        \item A larger value of $B$ is more likely to give the optimal result
+        \begin{itemize}
+            \item Algorithm will be much more computationally expensive
+        \end{itemize}
+        \item Beam width of up to 3000 can be used depending n the application
+        \item Beam search is not guaranteed to find the exact maximum but will run faster than DFS or BFS
+        \item Whole sequence to sequence model can be split into an RNN and beam search
+        \begin{itemize}
+            \item For all errors in the dev set, can calculate $P(y*\mid x)$ and $P(\hat{y}\mid x)$
+        \end{itemize}
+        \item For $P(y*\mid x)>P(\hat{y}\mid x)$, beam search is at fault
+        \begin{itemize}
+            \item Beam search chose $\hat{y}$ but $y*$ got a higher probability
+        \end{itemize}
+        \item For $P(y*\mid x)\leq P(\hat{y}\mid x)$, beam search is at fault
+        \begin{itemize}
+            \item $y*$ is a better translation than $\hat{y}$ but the RNN predicted otherwise
+        \end{itemize}
+    \end{itemize}
+    \subsubsection{Bleu (Bilingual Evaluation Understudy) Score}
+    \begin{itemize}
+        \item For machine translation, there may be many correct translations for a single input
+        \item If the machine translation is close to one of the human provided translations, it will have a high bleu score
+        \item Precision looks at whether the predicted output appears in the actual translations
+        \begin{itemize}
+            \item Modified precision will only credit a word as many times as it appears in the reference 
+            \item Modified precision prevents existing words from being repeated in the MT output
+        \end{itemize}
+        \item Precision can also be run on bigrams
+        \begin{itemize}
+            \item The count and clipped count can be calculated for each bigram 
+            \item Modified precision is $\frac{\text{clipped count}}{\text{count}}$
+        \end{itemize}
+        \item Bleu score formula is the same for all n-grams
+        $$p_n=\frac{\sum_{\text{n-grams }\in\hat{y}}\text{CountClip(n-gram)}}{\sum_{\text{n-grams }\in\hat{y}}\text{Count(n-gram)}}$$
+        \item MT output that is the same as a translation will have a precision score of 1
+        \item Combined bleu score averages the bleu score over multiple n-grams
+        \begin{itemize}
+            \item Combines score adds a BP (brevity penalty) to penalize short translations
+        \end{itemize} 
+        $$\text{Combined bleu score}=\text{BP}\exp(\frac{1}{4}\sum_{n=1}^4p_n)$$
+        $$\text{BP}=\begin{cases}
+            1 & \text{if MT\_length > reference\_length} \\
+            exp(1-\frac{\text{MT\_length}}{reference\_length}) & \text{otherwise}
+        \end{cases}$$
+        \item Bleu score not used for speech recognition as there is only one ground truth
+    \end{itemize}
+    \subsubsection{Attention Model}
+    \begin{itemize}
+        \item Current model has to read in the whole input before it can output anything
+        \begin{itemize}
+            \item Human translator would start translating after reading only part of the input
+        \end{itemize}
+        \item Bleu score for a sentence also decreases with the sentence length  
+        \begin{itemize}
+            \item With the attention model, the bleu score will not decrease with sentence length
+        \end{itemize}
+        \item Attention model initially developed for machine translation but now used in many other areas
+        \item Attention model uses attention weights for the inputs
+        \begin{itemize}
+            \item Attention weights will be combined to a context value $c$ that is fed to the output node
+        \end{itemize}
+        \item $\alpha^{<t,t'>}$ is the amount of ``attention'' $y^{<t>}$ should pay to $a^{<t'>}$
+        $$a^{<t'>}=(\overrightarrow{a}^{<t'>},\overleftarrow{a}^{<t'>})$$
+        $$\sum_{t'}\alpha^{<t,t'>}=1$$
+        $$c^{<t>}=\sum_{t'}\alpha^{<t,t'>}a^{<t'>}$$
+        $$\alpha^{<t,t'>}=\frac{\exp(e^{<t,t'>})}{\sum_{t'=1}^{T_x}\exp(e^{<t,t'>})}$$
+        \item Value for $e^{<t,t'>}$ calculated using a small NN with $s^{<t-1>}$ and $a^{<t'>}$ as inputs
+        \item Algorithm runs in quadratic cost relative to $T_x$ and $T_y$
+        \item Same idea can be applied to image captioning
+    \end{itemize}
+    \subsubsection{Speech Recognition}
+    \begin{itemize}
+        \item Goal is to generate a transcript $y$ for a given audio clip
+        \item Input audio can be preprocessed into a spectrogram
+        \begin{itemize}
+            \item Spectrogram has measures the intensity of different frequencies against time
+        \end{itemize}
+        \item Speech recognition systems initially used phonemes to represent words
+        \begin{itemize}
+            \item With deep learning, models can directly convert input audio to a transcript
+        \end{itemize}
+        \item Datasets for speech learning also increased in size 
+        \begin{itemize}
+            \item 3000 hour datasets common for academia
+            \item Commercial systems can use 100,000 hours of data
+        \end{itemize}
+        \item Attention model can be applied using each time frame of the data
+        \item CTC (Connectionist Temporal Classification) cost can be used for speech recognition
+        \begin{itemize}
+            \item For a typical audio clip, the number of inputs is much larger than the number of outputs
+        \end{itemize}
+        \item CTC cost lets the RNN output at each time step
+        \begin{itemize}
+            \item Final output will collapse repeated characters not separated by the ``blank'' token
+        \end{itemize}
+        \item Trigger word detection system can be used to ``wake'' smart devices
+        \item Target label for trigger word detection can be set to 1 at the point that the trigger is given 
+        \begin{itemize}
+            \item Method for labelling training set will cause a large imbalance between the 0s and 1s
+            \item Labels can be slightly modified to output 1 for a few steps after a trigger
+        \end{itemize}
+    \end{itemize}
     \end{document}

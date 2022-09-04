@@ -1,0 +1,2 @@
+.ipynb filter=lfs diff=lfs merge=lfs -text
+code/Emoji_v3a.ipynb filter=lfs diff=lfs merge=lfs -text

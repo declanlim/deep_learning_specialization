@@ -3252,4 +3252,102 @@
             \item Labels can be slightly modified to output 1 for a few steps after a trigger
         \end{itemize}
     \end{itemize}
+
+    \vspace{5mm}
+    \subsection{Transformer Networks}
+    \begin{itemize}
+        \item Transformer networks greatly used in modern NLP applications 
+        \item GRUs and LSTMs can fix some problems with a basic RNN
+        \begin{itemize}
+            \item Algorithms are increasingly complex but all sequential
+            \item Transformer networks allow more computations to be run in parallel
+        \end{itemize}
+        \item Transformer networks combine the attention model with ideas from CNNs  
+        \begin{itemize}
+            \item Attention model can compute rich representations for sequences sequentially
+            \item CNNs work with multiple pixels/words in parallel at each stage
+        \end{itemize}
+    \end{itemize}
+    \subsubsection{Self-Attention}
+    \begin{itemize}
+        \item Self attention will calculate an attention based representation for all words in parallel
+        \item Depending on the context of each word, the representation may differ 
+        \item Attention term for transformers is similar to the formula used in the standard RNN
+        $$A(Q,K,V)=\sum_i\frac{\exp(q\cdot k^{<i>})}{\sum_j\exp(q\cdot k^{<j>})}v^{<i>}$$
+        $$q^{<t>}=W^Q\cdot x^{<t>}$$
+        $$k^{<t>}=W^K\cdot x^{<t>}$$
+        $$v^{<t>}=W^V\cdot x^{<t>}$$
+        \begin{itemize}
+            \item Self-attention model will use a query, key and value matrices
+            \item Names come from analogy to database queries
+        \end{itemize}
+        \item For a certain word, the query value will get multiplied by all other key values 
+        \begin{itemize}
+            \item Operation will find words that are relavant to the input word
+            \item Softmax value calculated over the products
+        \end{itemize}
+        \item Softmax values (fraction) get multiplied by the word values ($v^{<i>}$)
+        \item Sum of all values taken to give the final output for the word
+        $$\text{Attention}(Q,K,V)=\text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+        \item Matrices $Q,K,V$ hold all the respective values for all words
+        \item Dot product is scaled in the denominator so the values don't explode
+    \end{itemize}
+    \subsubsection{Multi-Head Attention}
+    \begin{itemize}
+        \item One calculation of self attention is a ``head''
+        \begin{itemize}
+            \item Multi-head attention runs self attention multiple times
+        \end{itemize}
+        \item The $i$th head will use the matrices $W^Q_i,W^K_i,W^V_i$
+        \begin{itemize}
+            \item Each head will ``ask a different question''
+        \end{itemize}
+        \item $h$ is the number of heads in multi-head attention
+        \begin{itemize}
+            \item Each head can be seen as a different feature
+        \end{itemize}
+        \item Final output for multi-head attention concatenates the values from each head
+        $$\text{head}_i=\text{Attention}(W^Q_iQ,W^K_iK,W^V_iV)$$
+        $$\text{MultiHead}(Q,K,V)=\text{concat(head$_1$,head$_2$,...,head$_h$)}W_o$$
+        \item Conceptually values for each head are computed in a loop over $h$
+        \begin{itemize}
+            \item Values can all be computed in parallel as the values are independent
+        \end{itemize}
+    \end{itemize}
+    \subsubsection{Transformer Network}  
+    \begin{itemize}
+        \item $<$SOS$>$ and $<$EOS$>$ tokens are usually modelled in translation tasks
+        \item First section of a transformer network encodes the input
+        \begin{itemize}
+            \item Encoder block consists of multi-head attention block and feed forward NN block
+            \item Encoder block repeated $N$ (around 6) times
+        \end{itemize}
+        \item Output from encoder block used to generate $K$ and $V$ for the decoder block
+        \item Decoder block will have a multi-head attention block at the start to generate $Q$ for the main multi-head attention block
+        \begin{itemize}
+            \item Input to the first multi-head attention block will be the existing translation 
+            \item For the first word the input will just be the $<$SOS$>$ token
+        \end{itemize}
+        \item Second multi-head attention block in the decoder given to a feed forward NN
+        \item Whole decoder block also repeated $N$ times
+    \end{itemize}
+
+    \vspace{5mm}
+    \textbf{Additional Details}
+    \begin{itemize}
+        \item Attention equations for basic transformer networks doesn't know the position of each word  
+        \item Position can be encoded for inputs to the encoder and decoder blocks
+        $$PE_{(pos,2i)}=\sin\left(\frac{pos}{10000^{\frac{2i}{d}}}\right)$$ 
+        $$PE_{(pos,2i+1)}=\cos\left(\frac{pos}{10000^{\frac{2i}{d}}}\right)$$ 
+        \item Positional encoding vector will be the same shape as each word encoding
+        \item Positional encoding vector is added to each input vector
+        \item Positional encoding vectors passed through the network with residual connections
+        \item Add and Norm layer (similar to batch norm) will be used throughout the whole network 
+        \item Output from decoder block fed through linear and softmax layer
+        \item Masked multi-head attention may be used during training
+        \begin{itemize}
+            \item During training, correct input and output both known to the model
+            \item Masked multi-head attention will incrementally provide the correct output to the decoder network
+        \end{itemize}
+    \end{itemize}
     \end{document}
